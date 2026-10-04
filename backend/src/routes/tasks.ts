@@ -16,6 +16,8 @@ import {
   updateTaskDueDate,
   updateTaskPriority,
   fetchAllSubTasks,
+  removeSubtask,
+  toggleSubtaskStatus,
 } from "../controllers/task_controller.js";
 import { protect } from "@/middleware/authentication.js";
 import { authorize } from "@/middleware/authorization.js";
@@ -41,6 +43,8 @@ router.get("/task/focus", protect, getDailyFocus);
 router.get("/task/:id/breakdown", protect, breakdownTask);
 router.post("/task/:id/breakdown/save", protect, saveTaskBreakdown);
 router.get("/task/:id/subtasks", protect, fetchAllSubTasks);
+router.put("/task/:id/subtask/:subtask_id", protect, removeSubtask);
+router.patch("/task/:id/subtask/:subtask_id", protect, toggleSubtaskStatus);
 
 //Risk Routes
 router.get("/task/risk", protect, getRiskReport);

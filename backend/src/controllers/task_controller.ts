@@ -17,11 +17,13 @@ import {
   restoreTask,
   getDailyFocusTasks,
   saveSubTasks,
-  getTaskBreakDown,
   getActiveTasksById,
   updateDueDate,
   updatePriority,
-  getSubTasks,
+  getAllSubTasks,
+  deleteSubtask,
+  updateSubtaskStatus,
+  deleteAllSubtasks,
 } from "@/models/tasks_model.js";
 
 // Fetch All Tasks Accross DB
@@ -427,26 +429,39 @@ export const getDailyFocus = async (req: Request, res: Response) => {
 export const breakdownTask = async (req: Request, res: Response) => {
   const task_id = Number(req.params.id);
   const user_id = Number(req.user?.id);
+  const { regen = false } = req.body;
 
-  if (!task_id) {
+  if (isNaN(task_id)) {
     return res.status(400).json({
       message: "Please provide task id",
     });
   }
 
-  if (!user_id) {
+  if (isNaN(user_id)) {
     return res.status(401).json({
       message: "Unauthorized",
     });
   }
 
   try {
-    const task = await getTaskBreakDown(task_id);
+    const task = await getTaskById(task_id);
     if (!task) {
       return res.status(404).json({
         message: "Task not found",
         data: null,
       });
+    }
+
+    const existingSubTasks = await getAllSubTasks(task_id);
+
+    if (existingSubTasks.length > 0) {
+      if (!regen) {
+        return res.status(409).json({
+          message:
+            "Break down already Exists, Do you wish to regenerate break down",
+        });
+      }
+      await deleteAllSubtasks(task_id);
     }
 
     const subtask = await generateTaskBreakDown(task.title, task.description);
@@ -457,6 +472,7 @@ export const breakdownTask = async (req: Request, res: Response) => {
         data: [],
       });
     }
+
     return res.status(200).json({
       message: "Task breakdown generated successfully",
       data: subtask,
@@ -474,30 +490,36 @@ export const saveTaskBreakdown = async (req: Request, res: Response) => {
 
   const { subtasks } = req.body;
 
-  if (!task_id) {
+  if (isNaN(task_id)) {
     return res.status(400).json({
       message: "Please provide task id",
     });
   }
 
-  if (!user_id) {
+  if (isNaN(user_id)) {
     return res.status(401).json({
       message: "Unauthorized",
     });
   }
 
-  if (!subtasks || subtasks.length === 0 || !Array.isArray(subtasks)) {
+  if (!Array.isArray(subtasks) || subtasks.length === 0) {
     return res.status(400).json({
       message: "Please provide subtasks to save",
     });
   }
 
   try {
-    const parent = await getTaskBreakDown(task_id);
+    const parent = await getTaskById(task_id);
     if (!parent) {
       return res.status(404).json({
         message: "Parent Task not found",
       });
+    }
+
+    const existingSubtasks = await getAllSubTasks(task_id);
+
+    if (existingSubtasks.length > 0) {
+      return res.status(409).json({ message: "Break Down already Saved" });
     }
 
     const saved = await saveSubTasks(subtasks, task_id, user_id);
@@ -547,7 +569,7 @@ export const fetchAllSubTasks = async (req: Request, res: Response) => {
     });
   }
   try {
-    const subtasks = await getSubTasks(task_id);
+    const subtasks = await getAllSubTasks(task_id);
     return res.status(200).json({
       message: "Subtasks fetched successfully",
       data: subtasks,
@@ -556,5 +578,68 @@ export const fetchAllSubTasks = async (req: Request, res: Response) => {
     return res
       .status(500)
       .json({ message: "Error While Fetching Subtasks Please Try Again" });
+  }
+};
+
+export const removeSubtask = async (req: Request, res: Response) => {
+  const user_id = Number(req.user?.id);
+  const subtask_id = Number(req.params.subtask_id);
+  const task_id = Number(req.params?.id);
+
+  if (isNaN(user_id)) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  if (isNaN(task_id)) {
+    return res.status(401).json({ message: "Parent Task Not Found" });
+  }
+
+  if (isNaN(subtask_id)) {
+    return res.status(401).json({ message: "Sub Task id not found" });
+  }
+
+  try {
+    const response = await deleteSubtask(subtask_id, task_id);
+
+    return res.status(200).json({
+      message: "Sub Task deleted successfully",
+      data: response,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error While Deleting Sub Task Please Try Again",
+    });
+  }
+};
+
+export const toggleSubtaskStatus = async (req: Request, res: Response) => {
+  const user_id = Number(req.user?.id);
+  const subtask_id = Number(req.params.subtask_id);
+  const task_id = Number(req.params?.id);
+  const { status } = req.body;
+
+  if (isNaN(user_id)) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  if (isNaN(task_id)) {
+    return res.status(401).json({ message: "Parent Task Not Found" });
+  }
+
+  if (isNaN(subtask_id)) {
+    return res.status(401).json({ message: "Sub Task id not found" });
+  }
+
+  try {
+    const response = await updateSubtaskStatus(task_id, subtask_id, status);
+
+    return res.status(200).json({
+      message: "status update successfully",
+      data: response,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error While Updating Sub Task Please Try Again",
+    });
   }
 };

@@ -12,7 +12,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { Button } from "../ui/button";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { useGenerateTaskBreakDown, useSaveSubtasks } from "@/hooks/user/tasks";
 import { getPriorityColor } from "./priority-color";
@@ -24,6 +24,8 @@ export const AiTaskBreakDown = ({ task_id }: { task_id: number }) => {
   const [newSubtaskPriority, setNewSubtaskPriority] =
     useState<Priority>("medium");
   const [showAddForm, setShowAddForm] = useState(false);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const {
     mutateAsync: generatedSubtasks,
@@ -33,16 +35,9 @@ export const AiTaskBreakDown = ({ task_id }: { task_id: number }) => {
 
   const { mutate: saveSubtasks, isPending: isSaving } = useSaveSubtasks();
 
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
-
   const generateBreakDown = async (task_id: number) => {
     const subtasks = await generatedSubtasks(task_id);
-    setSubtasks(subtasks);
-  };
 
-  // Sync API response to local state
-  useEffect(() => {
     if (subtasks && subtasks.length > 0) {
       const formatted = subtasks.map((item, index) => ({
         id: item.id || `subtask-${Date.now()}-${index}`,
@@ -53,7 +48,7 @@ export const AiTaskBreakDown = ({ task_id }: { task_id: number }) => {
       }));
       setSubtasks(formatted);
     }
-  }, [subtasks]);
+  };
 
   const handleDragStart = (index: number) => {
     setDragIndex(index);

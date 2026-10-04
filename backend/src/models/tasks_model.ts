@@ -19,9 +19,10 @@ export const getAllTasks = async (
 
 export const getTaskById = async (id: number) => {
   try {
-    const result = await pool.query("SELECT * FROM tasks WHERE task_id = $1", [
-      id,
-    ]);
+    const result = await pool.query(
+      "SELECT * FROM tasks WHERE task_id = $1 and deleted_at IS NULL",
+      [id],
+    );
     return result.rows[0];
   } catch (error) {
     console.log("Error Fetching Task Please Try Again.", error);
@@ -50,7 +51,7 @@ export const getMyTasks = async (
       FROM tasks
       LEFT JOIN users ON tasks.assigned_to = users.id
       LEFT JOIN workspace ON tasks.workspace_id = workspace.id
-      WHERE (tasks.user_id = $1 OR tasks.assigned_to = $1) AND tasks.deleted_at is NULL
+      WHERE (tasks.user_id = $1 OR tasks.assigned_to = $1) AND parent_task_id is NULL AND tasks.deleted_at is NULL
     `;
 
     const values: (number | string)[] = [user_id];
@@ -235,19 +236,6 @@ export const getDailyFocusTasks = async (user_id: number) => {
   }
 };
 
-export const getTaskBreakDown = async (task_id: number) => {
-  try {
-    const result = await pool.query(
-      `SELECT task_id, title, description, priority FROM tasks WHERE task_id = $1 AND deleted_at IS NULL`,
-      [task_id],
-    );
-    return result.rows[0];
-  } catch (error) {
-    console.log("Error Fetching Task Breakdown Please Try Again.", error);
-    throw error;
-  }
-};
-
 export const saveSubTasks = async (
   subtasks: {
     title: string;
@@ -341,7 +329,7 @@ export const updatePriority = async (
   }
 };
 
-export const getSubTasks = async (task_id: number) => {
+export const getAllSubTasks = async (task_id: number) => {
   try {
     const result = await pool.query(
       `SELECT
@@ -357,6 +345,57 @@ export const getSubTasks = async (task_id: number) => {
     return result.rows;
   } catch (error) {
     console.log("Error Fetching Sub Tasks Please Try Again.", error);
+    throw error;
+  }
+};
+
+export const deleteSubtask = async (task_id: number, subtask_id: number) => {
+  try {
+    const result = await pool.query(
+      `UPDATE tasks 
+      SET deleted_at = NOW() 
+      WHERE parent_task_id = $1 AND task_id = $2 AND deleted_at IS NULL`,
+      [task_id, subtask_id],
+    );
+    return result.rows[0];
+  } catch (error) {
+    console.log("Error Deleting Sub Task Please Try Again.", error);
+    throw error;
+  }
+};
+
+export const updateSubtaskStatus = async (
+  task_id: number,
+  subtask_id: number,
+  status: "pending" | "completed",
+) => {
+  try {
+    const result = await pool.query(
+      `UPDATE tasks
+       SET status = $3
+       WHERE parent_task_id = $1 AND task_id = $2 AND deleted_at IS NULL
+       RETURNIG *
+      `,
+      [task_id, subtask_id, status],
+    );
+    return result.rows[0];
+  } catch (error) {
+    console.log("Error updating Sub Task Please Try Again.", error);
+    throw error;
+  }
+};
+
+export const deleteAllSubtasks = async (task_id: number) => {
+  try {
+    const result = await pool.query(
+      `
+      DELETE FROM tasks
+      WHERE parent_task_id = $1 
+      `,
+      [task_id],
+    );
+  } catch (error) {
+    console.log("Error deleteing Sub Task Please Try Again.", error);
     throw error;
   }
 };
