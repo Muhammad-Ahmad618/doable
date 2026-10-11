@@ -25,7 +25,7 @@ export function RegisterForm() {
   });
 
   return (
-    <div className="py-5 px-10 border rounded-2xl w-full">
+    <div className="w-full">
       {/* Brand Header */}
       <FormHeader
         title="Get Started"
@@ -106,7 +106,7 @@ export function RegisterForm() {
         <Button
           type="submit"
           variant="default"
-          className="w-full h-10 rounded-md font-semibold text-sm mt-2 shadow-sm cursor-pointer"
+          className="w-full h-11 rounded-md font-semibold text-sm mt-2 shadow-sm cursor-pointer"
           disabled={isPending}
         >
           {isPending ? (
@@ -120,7 +120,7 @@ export function RegisterForm() {
       </form>
 
       {/* Bottom links */}
-      <p className="text-center text-xs text-zinc-500 dark:text-zinc-400 mt-5">
+      <p className="text-center text-sm text-zinc-500 dark:text-zinc-400 mt-5">
         Already have an account?{" "}
         <Link
           href="/login"

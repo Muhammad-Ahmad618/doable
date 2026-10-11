@@ -33,7 +33,7 @@ function ForgotPasswordForm() {
   });
 
   return (
-    <div className="w-full p-10 border rounded-2xl">
+    <div className="w-full">
       <FormHeader
         title="Forgot Password"
         description={
