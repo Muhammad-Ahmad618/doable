@@ -241,7 +241,7 @@ export const saveSubTasks = async (
     title: string;
     description: string;
     priority: "low" | "medium" | "high";
-    due_date: Date;
+    due_date?: Date;
   }[],
   parent_task_id: number,
   user_id: number,
@@ -374,11 +374,11 @@ export const updateSubtaskStatus = async (
       `UPDATE tasks
        SET status = $3
        WHERE parent_task_id = $1 AND task_id = $2 AND deleted_at IS NULL
-       RETURNIG *
+       RETURNING *
       `,
       [task_id, subtask_id, status],
     );
-    return result.rows[0];
+    return result.rows[0] ?? null;
   } catch (error) {
     console.log("Error updating Sub Task Please Try Again.", error);
     throw error;

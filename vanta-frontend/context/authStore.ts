@@ -11,7 +11,7 @@ const useAuthStore = create<authStore>()(
       isAuthenticated: () => get().user !== null,
     }),
     {
-      name: "vanta-auth",
+      name: "doable-auth",
     },
   ),
 );

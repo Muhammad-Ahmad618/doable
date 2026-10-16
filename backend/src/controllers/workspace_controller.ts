@@ -237,36 +237,6 @@ export const kickoutWorkspaceMember = async (req: Request, res: Response) => {
   }
 };
 
-export const inviteWorkspaceMember = async (req: Request, res: Response) => {
-  const { workspace_id, role } = req.body;
-
-  const workspaceId = Number(workspace_id);
-  const userId = Number(req.user?.id);
-
-  if (isNaN(userId)) {
-    return res
-      .status(400)
-      .json({ message: "Invalid User Please Select Another User" });
-  }
-
-  try {
-    const workspaceMember = await insertWorkspaceMember(
-      workspaceId,
-      userId,
-      role,
-    );
-    return res.status(200).json({
-      message: "Workspace Member Added Successfully",
-      data: workspaceMember,
-    });
-  } catch (error) {
-    // console.error("Error inviting workspace member:", error);
-    return res.status(500).json({
-      message: "Error While Adding Workspace Member. Please Try Again",
-    });
-  }
-};
-
 export const transferOwnership = async (req: Request, res: Response) => {
   const { workspace_id, newOwner_id } = req.body;
 
@@ -369,7 +339,7 @@ export const fetchUserWorkspaces = async (req: Request, res: Response) => {
   } catch (error) {
     return res
       .status(500)
-      .json({ message: "Error Finding Workspaces. Please Try Again" });
+      .json({ message: "Error Finding Workspaces. Please Try Again", error });
   }
 };
 
@@ -443,7 +413,7 @@ export const joinWorkspaceViaInvite = async (req: Request, res: Response) => {
     const alreadyMember = await isWorkspaceMember(invite.workspace_id, user_id);
 
     if (alreadyMember) {
-      return res.status(400).json({
+      return res.status(200).json({
         message: "You are already a member of this workspace",
       });
     }

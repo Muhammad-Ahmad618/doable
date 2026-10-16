@@ -24,7 +24,7 @@ const geistMono = Geist_Mono({
 const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dmsans" });
 
 export const metadata: Metadata = {
-  title: "Vanta",
+  title: "Doable | Task management and Workspace app",
   description: "Smart Ai powered task management and workspace application",
 };
 

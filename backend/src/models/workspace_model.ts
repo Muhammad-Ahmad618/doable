@@ -104,6 +104,7 @@ export const getUserWorkspaces = async (user_id: number) => {
   workspace.id,
   workspace.name,
   workspace.description,
+  workspace.logo_url,
   CASE
    WHEN workspace.owner_id = $1 THEN 'owner'
    ELSE workspace_member.role

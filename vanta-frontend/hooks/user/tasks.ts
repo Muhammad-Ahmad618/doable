@@ -193,12 +193,20 @@ export const useUpdatePriority = () => {
   });
 };
 
+// subtask - hooks
+
 export const useGenerateTaskBreakDown = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (task_id: number) => {
-      const response = await api.get(`/task/${task_id}/breakdown`);
+    mutationFn: async ({
+      task_id,
+      regen,
+    }: {
+      task_id: number;
+      regen?: boolean;
+    }) => {
+      const response = await api.post(`/task/${task_id}/breakdown`, { regen });
       const subtasksData = response.data?.data || response.data || [];
       return Array.isArray(subtasksData) ? subtasksData : [];
     },
@@ -238,6 +246,76 @@ export const useSaveSubtasks = () => {
     },
     onError: (error: ApiError) => {
       toast.error(error?.message || "Failed to save subtasks");
+    },
+  });
+};
+
+export const useGetSubTasks = (task_id: number) => {
+  return useQuery<GeneratedSubTask[]>({
+    queryKey: ["task-breakdown", task_id],
+    queryFn: async () => {
+      const response = await api.get(`/task/${task_id}/subtasks`);
+      const subtasksData = response.data?.data || response.data || [];
+      return Array.isArray(subtasksData) ? subtasksData : [];
+    },
+  });
+};
+
+export const useToggleSubtask = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      task_id,
+      subtask_id,
+      status,
+    }: {
+      task_id: number;
+      subtask_id: number;
+      status: string;
+    }) => {
+      const response = await api.patch(
+        `/task/${task_id}/subtask/${subtask_id}`,
+        { status },
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["task-breakdown"],
+      });
+      toast.success("Subtask status updated successfully");
+    },
+    onError: (error: ApiError) => {
+      toast.error(error?.message || "Failed to update subtask");
+    },
+  });
+};
+
+export const useDeleteSubtask = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      task_id,
+      subtask_id,
+    }: {
+      task_id: number;
+      subtask_id: number;
+    }) => {
+      const response = await api.patch(
+        `/task/${task_id}/subtask/${subtask_id}`,
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["task-breakdown"],
+      });
+      toast.success("Subtask deleted successfully");
+    },
+    onError: (error: ApiError) => {
+      toast.error(error?.message || "Failed to delete subtask");
     },
   });
 };

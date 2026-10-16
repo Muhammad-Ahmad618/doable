@@ -429,53 +429,52 @@ export const getDailyFocus = async (req: Request, res: Response) => {
 export const breakdownTask = async (req: Request, res: Response) => {
   const task_id = Number(req.params.id);
   const user_id = Number(req.user?.id);
-  const { regen = false } = req.body;
+  const { regen = false } = req.body ?? {};
 
   if (isNaN(task_id)) {
-    return res.status(400).json({
-      message: "Please provide task id",
-    });
+    return res.status(400).json({ message: "Please provide task id" });
   }
-
   if (isNaN(user_id)) {
-    return res.status(401).json({
-      message: "Unauthorized",
-    });
+    return res.status(401).json({ message: "Unauthorized" });
   }
 
   try {
     const task = await getTaskById(task_id);
     if (!task) {
-      return res.status(404).json({
-        message: "Task not found",
-        data: null,
-      });
+      return res.status(404).json({ message: "Task not found", data: null });
     }
 
     const existingSubTasks = await getAllSubTasks(task_id);
-
-    if (existingSubTasks.length > 0) {
-      if (!regen) {
-        return res.status(409).json({
-          message:
-            "Break down already Exists, Do you wish to regenerate break down",
-        });
-      }
-      await deleteAllSubtasks(task_id);
+    if (existingSubTasks.length > 0 && !regen) {
+      return res.status(409).json({
+        message: "Break down already exists, do you wish to regenerate?",
+      });
     }
 
-    const subtask = await generateTaskBreakDown(task.title, task.description);
+    // 1. Generate FIRST (before deleting anything)
+    const generated = await generateTaskBreakDown(task.title, task.description);
 
-    if (subtask.length === 0) {
+    if (generated.length === 0) {
       return res.status(400).json({
         message: "This task is already small enough, no breakdown needed",
         data: [],
       });
     }
 
+    // 2. Only now delete the old ones (if regenerating)
+    if (existingSubTasks.length > 0) {
+      await deleteAllSubtasks(task_id);
+    }
+
+    const withDueDate = generated.map((subtask) => {
+      return { ...subtask, due_date: task.due_date };
+    });
+
+    const saved = await saveSubTasks(withDueDate, task_id, user_id);
+
     return res.status(200).json({
       message: "Task breakdown generated successfully",
-      data: subtask,
+      data: saved,
     });
   } catch (error) {
     return res.status(500).json({
@@ -640,6 +639,7 @@ export const toggleSubtaskStatus = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       message: "Error While Updating Sub Task Please Try Again",
+      error: error,
     });
   }
 };

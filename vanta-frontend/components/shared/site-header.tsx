@@ -168,7 +168,7 @@ export function SiteHeader() {
           <NavUser
             user={{
               name: "Admin",
-              email: "admin@vanta.com",
+              email: "admin@doable.com",
               avatar: "/avatars/shadcn.jpg",
             }}
           />

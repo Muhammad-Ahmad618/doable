@@ -5,7 +5,7 @@ export function AuthShowcase() {
     <section className="relative hidden overflow-hidden bg-linear-to-br from-blue-600 via-indigo-600 to-violet-700 lg:flex lg:flex-col lg:justify-between lg:p-14">
       {/* floating animation */}
       <style>{`
-        @keyframes vanta-float {
+        @keyframes doable-float {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-10px); }
         }
@@ -39,7 +39,7 @@ export function AuthShowcase() {
           Finish what matters.
         </h2>
         <p className="mt-4 text-base leading-relaxed text-blue-100">
-          Vanta keeps your tasks, projects and team in a single workspace, so
+          Doable keeps your tasks, projects and team in a single workspace, so
           nothing slips through the cracks.
         </p>
       </div>
@@ -65,7 +65,7 @@ export function AuthShowcase() {
               <span className="font-semibold text-white">68%</span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-white/15">
-              <div className="h-full w-[68%] rounded-full bg-gradient-to-r from-cyan-300 to-white" />
+              <div className="h-full w-[68%] rounded-full bg-linear-to-r from-cyan-300 to-white" />
             </div>
           </div>
 
@@ -84,7 +84,7 @@ export function AuthShowcase() {
         {/* Floating chip: top right */}
         <div
           className="absolute -right-2 -top-5 flex items-center gap-2.5 rounded-xl bg-white px-3.5 py-2.5 shadow-xl"
-          style={{ animation: "vanta-float 5s ease-in-out infinite" }}
+          style={{ animation: "doable-float 5s ease-in-out infinite" }}
         >
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
             <Check className="h-4 w-4" strokeWidth={3} />
@@ -100,7 +100,7 @@ export function AuthShowcase() {
         {/* Floating chip: bottom left */}
         <div
           className="absolute -bottom-6 -left-2 flex items-center gap-3 rounded-xl bg-white px-3.5 py-2.5 shadow-xl"
-          style={{ animation: "vanta-float 6s ease-in-out 1s infinite" }}
+          style={{ animation: "doable-float 6s ease-in-out 1s infinite" }}
         >
           <div className="flex -space-x-2">
             {["bg-rose-400", "bg-amber-400", "bg-sky-400"].map((c, i) => (

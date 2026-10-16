@@ -48,7 +48,7 @@ export function Notifications() {
           Notification preferences
         </h3>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Choose how and when Vanta notifies you.
+          Choose how and when Doable notifies you.
         </p>
       </div>
 
@@ -62,7 +62,7 @@ export function Notifications() {
                 id="inApp"
                 icon={<Bell size={15} />}
                 title="In-app notifications"
-                description="Alerts inside Vanta when tasks are updated or need attention."
+                description="Alerts inside Doable when tasks are updated or need attention."
                 checked={formik.values.inApp}
                 onCheckedChange={(v) => formik.setFieldValue("inApp", v)}
               />

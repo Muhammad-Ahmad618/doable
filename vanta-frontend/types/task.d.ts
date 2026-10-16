@@ -22,18 +22,22 @@ export interface Tasks {
   workspace?: string | null;
 }
 
-export interface SubTask {
-  id: string;
-  title: string;
-  completed: boolean;
-}
+export type ApiSubTask = {
+  id?: string | number;
+  task_id?: string | number;
+  title?: string;
+  description?: string | null;
+  priority?: Priority;
+  status?: Status;
+  completed?: boolean;
+};
 
 export interface GeneratedSubTask {
-  id?: string;
+  task_id?: string;
   title: string;
   description?: string;
   priority: Priority;
-  completed?: boolean;
+  status: Status;
 }
 
 export interface Comment {

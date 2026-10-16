@@ -17,7 +17,7 @@ export function Appearance() {
   const [theme, setTheme] = useState<Theme>("dark");
 
   const handleSave = () => {
-    localStorage.setItem("vanta-theme", theme);
+    localStorage.setItem("doable-theme", theme);
   };
 
   return (
@@ -25,7 +25,7 @@ export function Appearance() {
       <div className="px-6 py-5 border-b border-border">
         <h3 className="text-base font-semibold text-foreground">Appearance</h3>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Customize how Vanta looks for you.
+          Customize how Doable looks for you.
         </p>
       </div>
 
@@ -52,7 +52,7 @@ export function Appearance() {
                 <div className="flex items-center gap-2 px-2 py-2">
                   <div
                     className={cn(
-                      "w-2 h-2 rounded-full border-[1.5px] transition-colors flex-shrink-0",
+                      "w-2 h-2 rounded-full border-[1.5px] transition-colors shrink-0",
                       theme === value
                         ? "bg-primary border-primary"
                         : "border-muted-foreground/40",

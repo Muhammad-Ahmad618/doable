@@ -1,9 +1,16 @@
 export interface Workspace {
-  id: string;
-  title: string;
+  id: string | number;
+  name: string;
   description: string;
-  logo: string;
-  members: number;
-  activeTasks: number;
-  admin: boolean;
+  logo_url: string;
+  member_count: number;
+  active_tasks: number;
+  role: string | null;
+  member_preview?: string[];
+}
+
+export interface WorkspaceCreatePayload {
+  workspace_name: string;
+  workspace_description: string;
+  logo_url: File | null;
 }

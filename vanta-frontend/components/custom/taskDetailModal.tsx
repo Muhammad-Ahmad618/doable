@@ -118,7 +118,7 @@ export function TaskDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[75vw] max-w-6xl h-[85vh] p-0 flex flex-col rounded-xl overflow-hidden border border-border">
+      <DialogContent className="w-[90vw] max-w-7xl h-[90vh] p-0 flex flex-col rounded-xl overflow-hidden border border-border">
         {/* Main Header / Topbar */}
         <DialogTitle>
           <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-card">

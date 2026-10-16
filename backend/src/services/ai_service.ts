@@ -69,7 +69,9 @@ export const generateDailyFocus = async (tasks: task[]): Promise<string> => {
 export const generateTaskBreakDown = async (
   title: string,
   description: string,
-): Promise<{ title: string; description: string; priority: string }[]> => {
+): Promise<
+  { title: string; description: string; priority: "low" | "medium" | "high" }[]
+> => {
   const prompt = `You are a project planning assistant. A user has a task they want broken down into smaller subtasks.
 
     Task Title: ${title}

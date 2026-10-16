@@ -16,7 +16,7 @@ function ResetPasswordpage() {
           </div>
         </div>
         <p className="text-center text-xs text-muted-foreground">
-          &copy; {new Date().getFullYear()} Vanta. All rights reserved.
+          &copy; {new Date().getFullYear()} Doable. All rights reserved.
         </p>
       </section>
 

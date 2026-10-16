@@ -13,8 +13,8 @@ import { useFormik } from "formik";
 import { workspaceSchema } from "@/schemas/workspaceSchema";
 import { toast } from "sonner";
 import { useRef, useState } from "react";
-import { ImagePlus, X, Upload } from "lucide-react";
-
+import { ImagePlus, X, Upload, Loader2 } from "lucide-react";
+import { useCreateWorkspace } from "@/hooks/user/workspace";
 import { InviteMemberModal } from "./inviteMemberModal";
 
 export function WorkspaceSheet({
@@ -27,6 +27,7 @@ export function WorkspaceSheet({
   const [iconPreview, setIconPreview] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [shareLink, setShareLink] = useState<boolean>(false);
+  const [createdWorkspaceName, setCreatedWorkspaceName] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (file: File | null) => {
@@ -35,6 +36,11 @@ export function WorkspaceSheet({
       toast.error("Please upload a valid image file.");
       return;
     }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5 MB.");
+      return;
+    }
+    formik.setFieldValue("logo_url", file);
     const reader = new FileReader();
     reader.onloadend = () => setIconPreview(reader.result as string);
     reader.readAsDataURL(file);
@@ -47,15 +53,28 @@ export function WorkspaceSheet({
     handleFileChange(file ?? null);
   };
 
+  const { mutateAsync: createWorkspace, isPending } = useCreateWorkspace();
+
   const formik = useFormik({
     initialValues: {
       name: "",
       description: "",
+      logo_url: null as File | null,
     },
     validationSchema: workspaceSchema,
-    onSubmit: (values) => {
-      toast.success("Workspace Created Successfully");
-      console.log(values);
+    onSubmit: async (values) => {
+      try {
+        await createWorkspace({
+          workspace_name: values.name,
+          workspace_description: values.description,
+          logo_url: values.logo_url,
+        });
+      } catch (error) {
+        console.log(error);
+        return;
+      }
+
+      setCreatedWorkspaceName(values.name);
       setOpen(false);
       formik.resetForm();
       setIconPreview(null);
@@ -63,7 +82,6 @@ export function WorkspaceSheet({
         setShareLink(true);
       }, 500);
     },
-    enableReinitialize: true,
   });
 
   return (
@@ -161,6 +179,7 @@ export function WorkspaceSheet({
                         onClick={(e) => {
                           e.stopPropagation();
                           setIconPreview(null);
+                          formik.setFieldValue("logo_url", null);
                           if (fileInputRef.current)
                             fileInputRef.current.value = "";
                         }}
@@ -241,8 +260,10 @@ export function WorkspaceSheet({
               <Button
                 type="submit"
                 variant="default"
+                disabled={isPending}
                 className="w-full h-10 rounded-md font-medium text-sm shadow-sm cursor-pointer"
               >
+                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Create Workspace
               </Button>
             </form>
@@ -252,7 +273,8 @@ export function WorkspaceSheet({
       <InviteMemberModal
         open={shareLink}
         setOpen={setShareLink}
-        workspaceName={formik.values.name}
+        workspaceName={createdWorkspaceName}
+        mode="created"
       />
     </>
   );

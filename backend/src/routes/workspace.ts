@@ -5,12 +5,13 @@ import {
   removeWorkspace,
   fetchWorkspaceMembers,
   kickoutWorkspaceMember,
-  inviteWorkspaceMember,
   transferOwnership,
   leaveWorkspace,
   hardDeleteWorkspace,
   recoverWorkspace,
   fetchUserWorkspaces,
+  generateWorkspaceInvite,
+  joinWorkspaceViaInvite,
 } from "../controllers/workspace_controller.js";
 import { authorize } from "@/middleware/authorization.js";
 import { protect } from "@/middleware/authentication.js";
@@ -21,7 +22,7 @@ import { createWorkspaceValidator } from "@/validator/workspace_validator.js";
 const router = express.Router();
 
 router.post(
-  "/workspace",
+  "/workspace/create",
   protect,
   upload.single("workspace_logo"),
   createWorkspaceValidator,
@@ -48,9 +49,10 @@ router.delete(
   protect,
   kickoutWorkspaceMember,
 );
-router.post("/workspace/invite", protect, inviteWorkspaceMember);
 router.post("/workspace/transfer-ownership", protect, transferOwnership);
 router.post("/workspace/leave", protect, leaveWorkspace);
-router.get("/workspace/get-workspaces", protect, fetchUserWorkspaces);
+router.get("/workspace/my-workspaces", protect, fetchUserWorkspaces);
+router.post("/workspace/:id/invite", protect, generateWorkspaceInvite);
+router.post("/workspace/join/:token", protect, joinWorkspaceViaInvite);
 
 export default router;
