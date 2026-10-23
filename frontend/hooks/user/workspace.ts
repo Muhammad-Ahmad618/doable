@@ -59,7 +59,26 @@ export const useLeaveWorkspace = () => {
 
       toast.success("You are now not a member of this workspace");
     },
-    // No toast here: the leave dialog surfaces the API message inline
-    // (e.g. owners must transfer ownership before leaving).
+  });
+};
+
+export const useGetWorkspaceInvite = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (workspace_id: string) => {
+      const response = await api.post(`/workspace/${workspace_id}/invite`);
+      return response.data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["workspace-invite"],
+      });
+
+      toast.success("Invitation link generated successfully");
+    },
+    onError: (error: unknown) => {
+      toast.error(getApiErrorMessage(error, "Failed to generate invitation"));
+    },
   });
 };

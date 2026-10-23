@@ -9,24 +9,51 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Check, Copy, Link2, PartyPopper, UserPlus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useGetWorkspaceInvite } from "@/hooks/user/workspace";
 
 type InviteModalMode = "created" | "invite";
 
 export function InviteMemberModal({
   open,
   setOpen,
+  workspaceId,
   workspaceName,
   mode,
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
+  workspaceId: number | string;
   workspaceName: string;
   /** "created" = celebration flow after creating a workspace, "invite" = opened from a workspace card */
   mode: InviteModalMode;
 }) {
   const [copied, setCopied] = useState(false);
   const isCreatedFlow = mode === "created";
+
+  const {
+    mutateAsync: getWorkspaceInvite,
+    data: inviteData,
+    isPending,
+    isError,
+    reset,
+  } = useGetWorkspaceInvite();
+
+  useEffect(() => {
+    if (open) {
+      getWorkspaceInvite(String(workspaceId));
+    } else {
+      reset();
+    }
+  }, [open, workspaceId]);
+
+  const InviteLink = inviteData?.invite_link ?? "";
+  const handleCopy = async () => {
+    if (!InviteLink) return;
+    await navigator.clipboard.writeText(InviteLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -38,7 +65,7 @@ export function InviteMemberModal({
           {/* Header */}
           <DialogHeader className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                 {isCreatedFlow ? (
                   <PartyPopper className="w-4.5 h-4.5 text-primary" />
                 ) : (
@@ -84,20 +111,19 @@ export function InviteMemberModal({
             <div className="flex items-center gap-2 p-1 pl-3 rounded-xl border border-border/60 bg-muted/30 group">
               <Link2 className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
               <span className="flex-1 text-[13px] text-muted-foreground font-mono truncate select-all">
-                doable.app/join/9ABFAjkasbfka67
+                {isPending
+                  ? "Generating link..."
+                  : isError
+                    ? "Could not create link"
+                    : InviteLink.replace(/^https?:\/\//, "")}
               </span>
               <button
                 type="button"
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    "https://doable.app/join/9ABFAjkasbfka6734JLBSFS343ANF",
-                  );
-                  setCopied(true);
-                  setTimeout(() => setCopied(false), 2000);
-                }}
+                onClick={handleCopy}
+                disabled={copied || isPending || !InviteLink}
                 className={`
                     flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium
-                    transition-all duration-200 flex-shrink-0
+                    transition-all duration-200 shrink-0
                     ${
                       copied
                         ? "bg-green-500/15 text-green-600 dark:text-green-400"

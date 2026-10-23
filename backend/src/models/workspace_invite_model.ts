@@ -8,7 +8,7 @@ export const generateInviteLink = async (
   try {
     await pool.query(
       `
-            UPDATE workspace_invite
+            UPDATE workspace_invites
             SET is_active = false
             WHERE workspace_id = $1 and is_active = true;
             `,
@@ -20,7 +20,7 @@ export const generateInviteLink = async (
 
     const result = await pool.query(
       `
-            INSERT INTO workspace_invite (
+            INSERT INTO workspace_invites (
                 workspace_id,
                 token,
                 expires_at,
@@ -42,12 +42,12 @@ export const getInviteByToken = async (token: string) => {
     const result = await pool.query(
       `
      SELECT 
-     workspace_invite.*,
+     workspace_invites.*,
      workspace.name AS workspace_name,
-     FROM workspace_invite
-     LEFT JOIN workspace ON workspace.id = workspace_invite.workspace_id 
-     WHERE workspace_invite.token = $1 
-     AND workspace_invite.is_active = true
+     FROM workspace_invites
+     LEFT JOIN workspace ON workspace.id = workspace_invites.workspace_id 
+     WHERE workspace_invites.token = $1 
+     AND workspace_invites.is_active = true
      AND workspace_invite.expires_at > NOW()
         `,
       [token],
@@ -55,6 +55,51 @@ export const getInviteByToken = async (token: string) => {
     return result.rows[0];
   } catch (error) {
     console.log("Error Fetching Invite Token", error);
+    throw error;
+  }
+};
+
+export const getInvitePreviewByToken = async (token: string) => {
+  try {
+    const result = await pool.query(
+      `
+SELECT
+    w.name,
+    w.logo_url,
+    (
+        SELECT COUNT(*)::int
+        FROM workspace_members wm
+        WHERE wm.workspace_id = w.id
+    ) AS members,
+    COALESCE(
+        (
+            SELECT json_agg(sub.avatar_url)
+            FROM (
+                SELECT mu.avatar_url
+                FROM workspace_members wm
+                JOIN users mu ON mu.id = wm.user_id
+                WHERE wm.workspace_id = w.id
+                  AND mu.deleted_at IS NULL
+                ORDER BY wm.joined_at DESC
+                LIMIT 3
+            ) sub
+        ),
+        '[]'::json
+    ) AS member_avatars
+FROM workspace_invites wi
+JOIN workspace w ON w.id = wi.workspace_id
+JOIN users u ON u.id = wi.created_by
+WHERE wi.token = $1
+  AND wi.is_active = true
+  AND wi.expires_at > NOW()
+  AND w.deleted_at IS NULL;
+
+    `,
+      [token],
+    );
+    return result.rows[0];
+  } catch (error) {
+    console.log("Error Fetching Invite Preview", error);
     throw error;
   }
 };

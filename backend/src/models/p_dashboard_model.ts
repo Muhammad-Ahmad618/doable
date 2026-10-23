@@ -12,7 +12,7 @@ export const getDashboardStats = async (userId: number) => {
    COUNT (*) FILTER (WHERE status = 'pending') AS pending,
    COUNT (*) FILTER (WHERE due_date < NOW() AND status != 'completed') AS overdue
    FROM tasks
-   WHERE (user_id = $1 OR assigned_to = $1) AND deleted_at IS NULL
+   WHERE (user_id = $1 OR assigned_to = $1) AND parent_task_id is NULL AND deleted_at IS NULL
   `,
       [userId],
     );
@@ -42,6 +42,7 @@ export const getDashboardTrends = async (userId: Number, mode: string) => {
       FROM tasks
       WHERE (user_id = $1 OR assigned_to = $1) 
       AND deleted_at IS NULL
+      AND parent_task_id is NULL
       AND created_at >= NOW() - ${isMonthly ? "INTERVAL '6 MONTH'" : "INTERVAL '6 WEEKS'"}
       GROUP BY period 
       ORDER BY MIN(created_at)
@@ -72,7 +73,7 @@ export const getRecentTasks = async (userId: number) => {
        FROM tasks 
       LEFT JOIN users ON tasks.assigned_to = users.id
       LEFT JOIN workspace ON tasks.workspace_id = workspace.id 
-      WHERE ( tasks.user_id = $1 OR tasks.assigned_to = $1) AND tasks.deleted_at IS NULL
+      WHERE ( tasks.user_id = $1 OR tasks.assigned_to = $1) AND parent_task_id is NULL AND tasks.deleted_at is NULL
       ORDER BY tasks.created_at DESC
       LIMIT 10
       `,
@@ -96,6 +97,7 @@ export const getAtRiskTasks = async (userId: number) => {
       WHERE (user_id = $1 OR assigned_to = $1)
         AND deleted_at IS NULL
         AND status != 'completed'
+        AND parent_task_id is NULL
       `,
       [userId],
     );

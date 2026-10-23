@@ -20,6 +20,7 @@ import { uploadImage } from "@/utils/upload_image.js";
 import {
   generateInviteLink,
   getInviteByToken,
+  getInvitePreviewByToken,
 } from "@/models/workspace_invite_model.js";
 
 export const createNewWorkspace = async (req: Request, res: Response) => {
@@ -428,5 +429,39 @@ export const joinWorkspaceViaInvite = async (req: Request, res: Response) => {
     return res
       .status(500)
       .json({ message: "Error Joining Workspace Please Try Again." });
+  }
+};
+
+export const getInvitePreview = async (req: Request, res: Response) => {
+  const { token } = req.params;
+
+  if (typeof token !== "string") {
+    return res
+      .status(400)
+      .json({ message: "Invalid Invite Token Please Try Again" });
+  }
+
+  try {
+    const invite = await getInvitePreviewByToken(token);
+
+    if (!invite) {
+      return res
+        .status(400)
+        .json({ message: "Invalid or Expired Invite Link" });
+    }
+
+    return res.status(200).json({
+      message: "Invite Preview Fetched Successfully",
+      data: {
+        workspaceName: invite.name,
+        logo_url: invite.logo_url,
+        member_count: invite.members,
+        member_avatars: invite.member_avatars,
+      },
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error Fetching Invite Preview Please Try Again." });
   }
 };

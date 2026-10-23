@@ -12,6 +12,7 @@ import {
   fetchUserWorkspaces,
   generateWorkspaceInvite,
   joinWorkspaceViaInvite,
+  getInvitePreview,
 } from "../controllers/workspace_controller.js";
 import { authorize } from "@/middleware/authorization.js";
 import { protect } from "@/middleware/authentication.js";
@@ -54,5 +55,6 @@ router.post("/workspace/leave", protect, leaveWorkspace);
 router.get("/workspace/my-workspaces", protect, fetchUserWorkspaces);
 router.post("/workspace/:id/invite", protect, generateWorkspaceInvite);
 router.post("/workspace/join/:token", protect, joinWorkspaceViaInvite);
+router.get("/workspace/invite-preview/:token", getInvitePreview);
 
 export default router;

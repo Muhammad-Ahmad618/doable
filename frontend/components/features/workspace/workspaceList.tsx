@@ -191,6 +191,7 @@ export function WorkspaceList() {
       <InviteMemberModal
         open={Boolean(workspaceToInvite)}
         setOpen={handleInviteOpenChange}
+        workspaceId={workspaceToInvite?.id ?? 0}
         workspaceName={workspaceToInvite?.name ?? ""}
         mode="invite"
       />

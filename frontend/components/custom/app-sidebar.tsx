@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-
+import { FaEarlybirds } from "react-icons/fa6";
 import { NavMain } from "@/components/custom/nav-main";
 import {
   Sidebar,
@@ -17,6 +17,7 @@ import {
   Clipboard,
   Folder,
   Settings,
+  Trash2,
   MessageSquare,
 } from "lucide-react";
 
@@ -48,6 +49,11 @@ const data = {
       icon: <Settings />,
     },
     {
+      title: "Trash",
+      url: "/trash",
+      icon: <Trash2 />,
+    },
+    {
       title: "Feedback",
       url: "/feedback",
       icon: <MessageSquare />,
@@ -67,7 +73,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <a href="#" className="flex items-center gap-3">
                 <div className="flex items-center justify-center w-8 h-8 rounded-md bg-linear-to-br from-[#4e85fa] to-[#2e1dea]   text-white dark:bg-white dark:text-zinc-950 font-black text-lg tracking-wider">
-                  D
+                  <FaEarlybirds />
                 </div>
                 <span className="text-xl font-bold tracking-tight">Doable</span>
               </a>

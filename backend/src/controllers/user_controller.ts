@@ -65,7 +65,7 @@ export const fetchCurrentUser = async (req: Request, res: Response) => {
   try {
     const user = await getCurrentUser(user_id);
     if (!user || user.deleted_at !== null) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(401).json({ message: "User not found" });
     }
     return res
       .status(200)
