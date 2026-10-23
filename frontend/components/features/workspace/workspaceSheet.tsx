@@ -53,7 +53,11 @@ export function WorkspaceSheet({
     handleFileChange(file ?? null);
   };
 
-  const { mutateAsync: createWorkspace, isPending } = useCreateWorkspace();
+  const {
+    mutateAsync: createWorkspace,
+    data: workspaceData,
+    isPending,
+  } = useCreateWorkspace();
 
   const formik = useFormik({
     initialValues: {
@@ -273,6 +277,7 @@ export function WorkspaceSheet({
       <InviteMemberModal
         open={shareLink}
         setOpen={setShareLink}
+        workspaceId={workspaceData?.data.id}
         workspaceName={createdWorkspaceName}
         mode="created"
       />
