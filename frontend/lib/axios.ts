@@ -1,42 +1,52 @@
-import axios from "axios";
+import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
 });
 
-console.log("API URL:", process.env.NEXT_PUBLIC_API_URL);
+const AUTH_ROUTES = ["/auth/login", "/auth/register", "/auth/refresh"];
 
-api.interceptors.request.use(
-  (config) => config,
-  (error) => Promise.reject(error),
-);
+let refreshPromise: Promise<unknown> | null = null;
 
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+  async (error: AxiosError) => {
+    const original = error.config as
+      | (InternalAxiosRequestConfig & { _retry?: boolean })
+      | undefined;
 
-    // _retry is not present in the config object
-    // originalRequest._retry === undefined => !undefined => true
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      if (originalRequest.url?.includes("/refresh")) {
-        window.location.href = "/login";
-        return Promise.reject(error);
-      }
+    const url = original?.url ?? "";
+    const isAuthRoute = AUTH_ROUTES.some((r) => url.includes(r));
 
-      originalRequest._retry = true;
-
-      try {
-        await api.post("/refresh");
-
-        return api(originalRequest);
-      } catch (refreshError) {
-        window.location.href = "/login";
-        return Promise.reject(refreshError);
-      }
+    if (
+      error.response?.status !== 401 ||
+      !original ||
+      isAuthRoute ||
+      original._retry
+    ) {
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
+
+    original._retry = true;
+
+    try {
+      // Share one refresh across concurrent 401s
+      refreshPromise ??= api
+        .post("/auth/refresh")
+        .finally(() => (refreshPromise = null));
+      await refreshPromise;
+      return api(original);
+    } catch (refreshError) {
+      // Only redirect if we're not already on the login page
+      if (
+        typeof window !== "undefined" &&
+        window.location.pathname !== "/login"
+      ) {
+        window.location.assign("/login");
+      }
+      return Promise.reject(refreshError);
+    }
   },
 );
 
