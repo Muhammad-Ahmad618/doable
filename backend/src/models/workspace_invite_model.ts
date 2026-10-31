@@ -68,7 +68,7 @@ SELECT
     w.logo_url,
     (
         SELECT COUNT(*)::int
-        FROM workspace_members wm
+        FROM workspace_member wm
         WHERE wm.workspace_id = w.id
     ) AS members,
     COALESCE(
@@ -76,7 +76,7 @@ SELECT
             SELECT json_agg(sub.avatar_url)
             FROM (
                 SELECT mu.avatar_url
-                FROM workspace_members wm
+                FROM workspace_member wm
                 JOIN users mu ON mu.id = wm.user_id
                 WHERE wm.workspace_id = w.id
                   AND mu.deleted_at IS NULL
