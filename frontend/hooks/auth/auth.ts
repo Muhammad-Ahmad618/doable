@@ -15,9 +15,19 @@ export const useRegister = () => {
       const res = await api.post("/auth/register", data);
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Registered successfully");
-      router.push("/login");
+
+      const safeRedirect =
+        data.redirect?.startWith("/") && data.redirect?.startWith("//")
+          ? data.redirect
+          : null;
+
+      if (safeRedirect) {
+        router.replace(safeRedirect);
+      } else {
+        router.replace("/login");
+      }
     },
     onError: (error: ApiError) => {
       toast.error(error.response?.data?.message || "Registration failed");
@@ -37,10 +47,18 @@ export const useLogin = () => {
     onSuccess: (data) => {
       setUser(data.user as authUser);
       toast.success("Login successful");
-      if (data.user.role === "admin") {
-        router.push("/admin/dashboard");
+
+      const safeRedirect =
+        data.redirect?.startWith("/") && !data.redirect?.startWith("//")
+          ? data.redirect
+          : null;
+
+      if (safeRedirect) {
+        router.replace(safeRedirect);
+      } else if (data.user.role === "admin") {
+        router.replace("/admin/dashboard");
       } else {
-        router.push("/dashboard");
+        router.replace("/dashboard");
       }
     },
     onError: (error: ApiError) => {

@@ -7,11 +7,12 @@ import {
   useIsLoggedIn,
   useGetWorkspacePreview,
 } from "@/hooks/user/workspace-invite";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 export default function JoinPage() {
   const [status, setStatus] = useState<JoinStatus>("ready");
 
+  const router = useRouter();
   const params = useParams();
   const token = params.token;
   const { data: isLoggedIn } = useIsLoggedIn();
@@ -22,6 +23,9 @@ export default function JoinPage() {
     error,
     refetch,
   } = useGetWorkspacePreview(token as string);
+
+  const redirect = encodeURIComponent(`/join/${token}`);
+
   return (
     <JoinWorkspaceView
       status={status}
@@ -32,10 +36,10 @@ export default function JoinPage() {
       previewLoading={isLoading}
       onRetry={() => refetch()}
       onJoin={() => setStatus("joining")}
-      onSignUp={() => {}}
-      onLogin={() => {}}
-      onDecline={() => {}}
-      onContinue={() => {}}
+      onSignUp={() => router.push(`/register?redirect=${redirect}`)}
+      onLogin={() => router.push(`/login?redirect=${redirect}`)}
+      onDecline={() => router.push("/")}
+      onContinue={() => router.push("/workspace")}
     />
   );
 }

@@ -8,8 +8,12 @@ import FormHeader from "@/components/shared/formHeader";
 import { useFormik } from "formik";
 import { signupSchema } from "@/schemas/authSchema";
 import { useRegister } from "@/hooks/auth/auth";
+import { useSearchParams } from "next/navigation";
 
 export function RegisterForm() {
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
+
   const { mutate: registerUser, isPending } = useRegister();
   const formik = useFormik({
     initialValues: {
@@ -20,7 +24,7 @@ export function RegisterForm() {
     },
     validationSchema: signupSchema,
     onSubmit: (values) => {
-      registerUser(values);
+      registerUser({ ...values, redirect });
     },
   });
 

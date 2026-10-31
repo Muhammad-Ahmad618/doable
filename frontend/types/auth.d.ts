@@ -2,11 +2,13 @@ export interface registerPayload {
   name: string;
   email: string;
   password: string;
+  redirect: string | null;
 }
 
 export interface loginPayload {
   email: string;
   password: string;
+  redirect?: string | null;
 }
 
 export interface forgotPasswordPayload {

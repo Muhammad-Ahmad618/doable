@@ -8,8 +8,11 @@ import FormHeader from "@/components/shared/formHeader";
 import { loginSchema } from "@/schemas/authSchema";
 import { useFormik } from "formik";
 import { useLogin } from "@/hooks/auth/auth";
+import { useSearchParams } from "next/navigation";
 
 export function LoginForm() {
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
   const { mutate: loginUser, isPending } = useLogin();
 
   const formik = useFormik({
@@ -19,7 +22,7 @@ export function LoginForm() {
     },
     validationSchema: loginSchema,
     onSubmit: (values) => {
-      loginUser(values);
+      loginUser({ ...values, redirect });
     },
   });
 

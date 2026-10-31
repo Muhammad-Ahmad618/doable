@@ -7,8 +7,6 @@ import {
   UserPlus,
   Sparkles,
   ShieldCheck,
-  AlertCircle,
-  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,7 +15,8 @@ import {
   AvatarImage,
   AvatarGroup,
 } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
+import { JoinWorkspaceSkeleton } from "./joinWorkspaceSkeleton";
+import { JoinErrorState } from "./joinErrorState";
 import { cn } from "@/lib/utils";
 import { JoinViewProps } from "@/types/join";
 
@@ -38,57 +37,6 @@ const getGradient = (name?: string) => {
   }
   return GRADIENTS[hash % GRADIENTS.length];
 };
-
-/**
- * High-fidelity loading skeleton matching the workspace invite card layout.
- */
-export function JoinWorkspaceSkeleton() {
-  return (
-    <div className="overflow-hidden rounded-3xl bg-card/90 shadow-2xl backdrop-blur-xl ring-1 ring-border/60 transition-all">
-      {/* Workspace Header Banner skeleton */}
-      <div className="relative h-28 w-full overflow-hidden bg-muted/40">
-        <Skeleton className="size-full rounded-none bg-linear-to-r from-muted/50 via-muted/30 to-muted/60" />
-        <div className="absolute bottom-2 right-3">
-          <Skeleton className="h-5 w-28 rounded-full bg-card/60 backdrop-blur-sm" />
-        </div>
-      </div>
-
-      <div className="px-6 pb-6">
-        {/* Logo overlapping the banner skeleton */}
-        <div className="-mt-12 flex justify-center">
-          <div className="rounded-2xl ring-4 ring-card shadow-xl">
-            <Skeleton className="size-24 rounded-2xl bg-muted" />
-          </div>
-        </div>
-
-        {/* Heading & Invitation Note skeleton */}
-        <div className="mt-4 flex flex-col items-center text-center">
-          <Skeleton className="h-5 w-32 rounded-full bg-muted/80" />
-          <Skeleton className="mt-2.5 h-8 w-52 rounded-xl bg-muted sm:w-60" />
-        </div>
-
-        {/* Member avatars box skeleton */}
-        <div className="mt-6 flex flex-col items-center justify-center gap-2.5 rounded-xl bg-muted/40 p-3 ring-1 ring-border/50">
-          <div className="flex items-center gap-3">
-            <div className="flex -space-x-2">
-              <Skeleton className="size-8 rounded-full ring-2 ring-card bg-muted/80" />
-              <Skeleton className="size-8 rounded-full ring-2 ring-card bg-muted/80" />
-              <Skeleton className="size-8 rounded-full ring-2 ring-card bg-muted/80" />
-            </div>
-            <Skeleton className="h-4 w-28 rounded-md bg-muted/80" />
-          </div>
-          <Skeleton className="h-3 w-44 rounded-md bg-muted/60" />
-        </div>
-
-        {/* Action buttons skeleton */}
-        <div className="mt-6 space-y-2.5">
-          <Skeleton className="h-12 w-full rounded-xl bg-muted" />
-          <Skeleton className="h-10 w-full rounded-xl bg-muted/60" />
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export function JoinWorkspaceView({
   status,
@@ -136,55 +84,13 @@ export function JoinWorkspaceView({
 
         {/* ---------------- 2. ERROR STATE ---------------- */}
         {!isLoadingState && isErrorState && (
-          <div className="overflow-hidden rounded-3xl bg-card/90 shadow-2xl backdrop-blur-xl ring-1 ring-border/60 transition-all">
-            <div className="px-6 py-10 text-center">
-              <div className="relative mx-auto flex size-20 items-center justify-center">
-                <span className="absolute inset-0 animate-ping rounded-full bg-destructive/10" />
-                <div className="relative flex size-20 items-center justify-center rounded-full bg-destructive/10 ring-1 ring-destructive/25 shadow-sm">
-                  <AlertCircle className="size-10 text-destructive" />
-                </div>
-              </div>
-
-              <h1 className="mt-6 text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
-                {status === "error"
-                  ? "Failed to Join Workspace"
-                  : "Invite Link Expired or Invalid"}
-              </h1>
-
-              <p className="mx-auto mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground">
-                {errorMessage ||
-                  (status === "error"
-                    ? "We encountered an unexpected issue while adding you to this workspace. Please try again."
-                    : "This invite link is invalid, expired, or has already been used. Please request a new invite from the workspace administrator.")}
-              </p>
-
-              <div className="mt-8 space-y-2.5">
-                {onRetry && (
-                  <Button
-                    onClick={onRetry}
-                    className="h-12 w-full cursor-pointer rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:opacity-95 active:scale-[0.98]"
-                  >
-                    <RotateCcw className="mr-2 size-4" />
-                    Try Again
-                  </Button>
-                )}
-                <Button
-                  variant={onRetry ? "outline" : "default"}
-                  onClick={onContinue}
-                  className={cn(
-                    "h-12 w-full cursor-pointer rounded-xl text-sm font-semibold transition-all active:scale-[0.98]",
-                    onRetry
-                      ? "ring-1 ring-border/80 hover:bg-muted/50"
-                      : "bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:opacity-95",
-                  )}
-                >
-                  Go to My Workspaces
-                </Button>
-              </div>
-            </div>
-          </div>
+          <JoinErrorState
+            status={status}
+            errorMessage={errorMessage}
+            onRetry={onRetry}
+            onContinue={onContinue}
+          />
         )}
-
         {/* ---------------- 3. SUCCESS STATE ---------------- */}
         {!isLoadingState && !isErrorState && status === "success" && (
           <div className="overflow-hidden rounded-3xl bg-card/90 shadow-2xl backdrop-blur-xl ring-1 ring-border/60 transition-all">
@@ -373,4 +279,3 @@ export function JoinWorkspaceView({
     </main>
   );
 }
-

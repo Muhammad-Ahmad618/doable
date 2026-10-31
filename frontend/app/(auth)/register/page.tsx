@@ -1,6 +1,8 @@
 "use client";
 import { AuthShowcase } from "@/components/features/auth/authShowCase";
 import { RegisterForm } from "@/components/features/auth/registerForm";
+import { Loader2 } from "lucide-react";
+import { Suspense } from "react";
 
 function register() {
   return (
@@ -9,7 +11,15 @@ function register() {
       <section className="flex flex-col px-6 py-8 sm:px-12 lg:px-20">
         <div className="flex flex-1 items-center justify-center py-10">
           <div className="w-full max-w-md p-10 border rounded-lg lg:border-none lg:p-5">
-            <RegisterForm />
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center">
+                  <Loader2 />
+                </div>
+              }
+            >
+              <RegisterForm />
+            </Suspense>
           </div>
         </div>
         <p className="text-center text-xs text-muted-foreground">

@@ -21,3 +21,10 @@ export type JoinViewProps = {
   onContinue: () => void;
   onRetry?: () => void;
 };
+
+export interface joinErrorProps {
+  status: JoinStatus;
+  errorMessage?: string;
+  onRetry?: () => void;
+  onContinue: () => void;
+}
