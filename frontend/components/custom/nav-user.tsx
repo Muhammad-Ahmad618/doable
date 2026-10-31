@@ -80,15 +80,18 @@ export function NavUser({
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem onClick={() => router.push("/settings")}>
-              <UserCircleIcon />
+            <DropdownMenuItem
+              onClick={() => router.push("/settings")}
+              className="h-10 cursor-pointer"
+            >
+              <UserCircleIcon className="w-5" />
               Profile
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() => setShowLogoutModal(true)}
-            className="text-destructive focus:text-destructive focus:bg-destructive/10"
+            className="h-10 cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
           >
             <SignOutIcon />
             Log out

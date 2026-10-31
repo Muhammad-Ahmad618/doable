@@ -1,6 +1,7 @@
 import * as yup from "yup";
 
 export const resetPasswordSchema = yup.object({
+  current: yup.string().required("Current password is required"),
   newPassword: yup
     .string()
     .min(8, "Password must be at least 8 characters long")

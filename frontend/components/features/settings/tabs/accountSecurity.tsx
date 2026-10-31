@@ -5,9 +5,12 @@ import { AppInputField } from "@/components/shared/appInputField";
 import { PasswordStrength } from "@/components/custom/password-strenght";
 import { useFormik } from "formik";
 import { resetPasswordSchema } from "@/schemas/resetPasswordSchema";
-import { toast } from "sonner";
+import { useUpdateUserPassword } from "@/hooks/user/settings";
+import { Loader2 } from "lucide-react";
 
 export function AccountSecurity() {
+  const updatePasswordMutation = useUpdateUserPassword();
+
   const formik = useFormik({
     initialValues: {
       current: "",
@@ -15,10 +18,18 @@ export function AccountSecurity() {
       confirmPassword: "",
     },
     validationSchema: resetPasswordSchema,
-    onSubmit: () => {
-      // Handle password reset API call
-      formik.resetForm();
-      toast.success("Password reset successfully");
+    onSubmit: (values) => {
+      updatePasswordMutation.mutate(
+        {
+          current: values.current,
+          newPassword: values.newPassword,
+        },
+        {
+          onSuccess: () => {
+            formik.resetForm();
+          },
+        },
+      );
     },
   });
 
@@ -47,6 +58,7 @@ export function AccountSecurity() {
                 labelClassName="text-sm"
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
+                disabled={updatePasswordMutation.isPending}
                 error={
                   formik.touched.current ? formik.errors.current : undefined
                 }
@@ -65,6 +77,7 @@ export function AccountSecurity() {
                   labelClassName="text-sm"
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
+                  disabled={updatePasswordMutation.isPending}
                   error={
                     formik.touched.newPassword
                       ? formik.errors.newPassword
@@ -85,6 +98,7 @@ export function AccountSecurity() {
                   labelClassName="text-sm"
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
+                  disabled={updatePasswordMutation.isPending}
                   error={
                     formik.touched.confirmPassword
                       ? formik.errors.confirmPassword
@@ -101,11 +115,19 @@ export function AccountSecurity() {
               type="button"
               variant="outline"
               className="rounded-md cursor-pointer"
+              disabled={updatePasswordMutation.isPending}
               onClick={() => formik.resetForm()}
             >
               Cancel
             </Button>
-            <Button type="submit" className="rounded-md cursor-pointer">
+            <Button
+              type="submit"
+              className="rounded-md cursor-pointer"
+              disabled={updatePasswordMutation.isPending}
+            >
+              {updatePasswordMutation.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Update password
             </Button>
           </div>

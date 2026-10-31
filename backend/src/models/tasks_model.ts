@@ -184,6 +184,32 @@ export const softDeleteTask = async (id: number) => {
   }
 };
 
+export const getMyDeletedTasks = async (user_id: number) => {
+  try {
+    const result = await pool.query(
+      `
+      SELECT 
+      t.task_id,
+      t.title,
+      t.status,
+      t.priority,  
+      t.due_date,
+      u.username AS assignee,
+      w.name AS workspace
+      FROM tasks t
+      LEFT JOIN users u ON u.id = t.assigned_to
+      LEFT JOIN workspace w ON w.id = t.workspace_id
+      WHERE t.user_id = $1 AND t.deleted_at IS NOT NULL
+      `,
+      [user_id],
+    );
+    return result.rows[0];
+  } catch (error) {
+    console.log("Error fetching deleted tasks", error);
+    throw error;
+  }
+};
+
 export const restoreTask = async (id: number) => {
   try {
     const result = await pool.query(

@@ -24,6 +24,7 @@ import {
   deleteSubtask,
   updateSubtaskStatus,
   deleteAllSubtasks,
+  getMyDeletedTasks,
 } from "@/models/tasks_model.js";
 
 // Fetch All Tasks Accross DB
@@ -272,11 +273,36 @@ export const updateTaskDueDate = async (req: Request, res: Response) => {
   }
 };
 
-export const removeTask = async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
+export const fetchMyDeletedTasks = async (req: Request, res: Response) => {
   const user_id = Number(req.user?.id);
 
-  if (!id) {
+  if (isNaN(user_id)) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  try {
+    const response = await getMyDeletedTasks(user_id);
+
+    if (response.length === 0) {
+      return res.status(200).json({ message: "There are no deleted tasks" });
+    }
+
+    return res.status(200).json({
+      message: "fetched successfully",
+      data: response,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error While fetching Please Try Again" });
+  }
+};
+
+export const removeTask = async (req: Request, res: Response) => {
+  const task_id = Number(req.params.id);
+  const user_id = Number(req.user?.id);
+
+  if (!task_id) {
     return res.status(400).json({
       message: "Please provide task id",
     });
@@ -287,7 +313,7 @@ export const removeTask = async (req: Request, res: Response) => {
   }
 
   try {
-    const task = await getTaskById(id);
+    const task = await getTaskById(task_id);
     if (!task || task.deleted_at !== null) {
       return res.status(404).json({ message: "Task not found" });
     }
@@ -296,7 +322,7 @@ export const removeTask = async (req: Request, res: Response) => {
       return res.status(403).json({ message: "Forbidden" });
     }
 
-    const result = await softDeleteTask(id);
+    const result = await softDeleteTask(task_id);
     return res
       .status(200)
       .json({ message: "Task deleted successfully", data: result });

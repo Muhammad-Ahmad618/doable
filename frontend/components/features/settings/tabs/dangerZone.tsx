@@ -1,4 +1,5 @@
 "use client";
+
 import {
   Dialog,
   DialogContent,
@@ -8,9 +9,10 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { TriangleAlert } from "lucide-react";
+import { TriangleAlert, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useDeleteMyAccount } from "@/hooks/user/settings";
 
 const CONFIRMATION_TEXT = "delete account";
 
@@ -22,18 +24,23 @@ export function DeleteAccountModal({
   setOpen: (open: boolean) => void;
 }) {
   const [value, setValue] = useState("");
+  const deleteAccountMutation = useDeleteMyAccount();
 
   const isMatch = value.toLowerCase() === CONFIRMATION_TEXT;
 
   const handleClose = () => {
+    if (deleteAccountMutation.isPending) return;
     setValue("");
     setOpen(false);
   };
 
   const handleDelete = () => {
-    if (!isMatch) return;
-    // call DELETE /api/users/me here
-    handleClose();
+    if (!isMatch || deleteAccountMutation.isPending) return;
+    deleteAccountMutation.mutate(undefined, {
+      onSuccess: () => {
+        handleClose();
+      },
+    });
   };
 
   return (
@@ -77,6 +84,7 @@ export function DeleteAccountModal({
               value={value}
               onChange={(e) => setValue(e.target.value)}
               placeholder={CONFIRMATION_TEXT}
+              disabled={deleteAccountMutation.isPending}
               className={`h-10 rounded-lg text-sm transition-colors ${
                 value && !isMatch
                   ? "border-destructive/50 focus-visible:ring-destructive/30"
@@ -92,16 +100,20 @@ export function DeleteAccountModal({
           <div className="flex flex-col gap-2 pt-1">
             <Button
               variant="destructive"
-              disabled={!isMatch}
+              disabled={!isMatch || deleteAccountMutation.isPending}
               onClick={handleDelete}
               className="w-full h-9 rounded-lg text-sm font-medium cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
+              {deleteAccountMutation.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Permanently delete account
             </Button>
             <button
               type="button"
+              disabled={deleteAccountMutation.isPending}
               onClick={handleClose}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors duration-150 py-1 cursor-pointer"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors duration-150 py-1 cursor-pointer disabled:opacity-50"
             >
               Cancel, keep my account
             </button>

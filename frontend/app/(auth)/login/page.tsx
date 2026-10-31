@@ -1,3 +1,4 @@
+"use client";
 import { LoginForm } from "@/components/features/auth/loginForm";
 import { AuthShowcase } from "@/components/features/auth/authShowCase";
 import { Loader2 } from "lucide-react";

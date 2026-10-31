@@ -6,26 +6,42 @@ import { Button } from "@/components/ui/button";
 import { AppTextareaField } from "@/components/shared/appTextareaField";
 import { AppImageupload } from "@/components/shared/app-imageupload";
 import { useFormik } from "formik";
-import { toast } from "sonner";
 import { profileSchema } from "@/schemas/profileSchema";
 import { AppInputField } from "@/components/shared/appInputField";
+import { useGetCurrentUser, useUpdateUserProfile } from "@/hooks/user/settings";
+import { Loader2 } from "lucide-react";
 
 export function Profile() {
+  const { data: user, isLoading } = useGetCurrentUser();
+  const updateProfileMutation = useUpdateUserProfile();
+  const [selectedImagePreview, setSelectedImagePreview] = useState<
+    string | null
+  >(null);
+
+  const imagePreview = selectedImagePreview ?? user?.avatar_url ?? null;
+
   const formik = useFormik({
+    enableReinitialize: true,
     initialValues: {
       profileImage: null as File | null,
-      username: "",
-      email: "",
-      bio: "",
+      username: user?.username ?? "",
+      email: user?.email ?? "",
+      bio: user?.bio ?? "",
     },
     validationSchema: profileSchema,
     onSubmit: (values) => {
-      console.log(values);
-      toast.success("Profile updated successfully");
+      updateProfileMutation.mutate({
+        username: values.username,
+        bio: values.bio,
+        avatar: values.profileImage,
+      });
     },
   });
 
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const handleCancel = () => {
+    formik.resetForm();
+    setSelectedImagePreview(user?.avatar_url ?? null);
+  };
 
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-card">
@@ -39,14 +55,17 @@ export function Profile() {
         </p>
       </div>
 
-      <form onSubmit={formik.handleSubmit} className="px-6 py-6">
+      <form
+        id="profile-form"
+        onSubmit={formik.handleSubmit}
+        className="px-6 py-6"
+      >
         {/* Identity row: avatar top-left + name/email context */}
-
         <AppImageupload
           value={imagePreview}
           onChange={(preview, file) => {
-            setImagePreview(preview);
-            formik.setFieldValue("profileImageFile", file);
+            setSelectedImagePreview(preview);
+            formik.setFieldValue("profileImage", file);
           }}
         />
 
@@ -64,6 +83,7 @@ export function Profile() {
               value={formik.values.username}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
+              disabled={isLoading}
               error={
                 formik.touched.username ? formik.errors.username : undefined
               }
@@ -77,6 +97,7 @@ export function Profile() {
               labelClassName="text-sm"
               placeholder="Enter your email"
               value={formik.values.email}
+              disabled
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               error={formik.touched.email ? formik.errors.email : undefined}
@@ -93,6 +114,7 @@ export function Profile() {
               value={formik.values.bio}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
+              disabled={isLoading}
               error={formik.touched.bio ? formik.errors.bio : undefined}
             />
             <span className="text-xs text-muted-foreground/70">
@@ -104,10 +126,26 @@ export function Profile() {
 
       {/* Footer */}
       <div className="flex justify-end gap-x-3 border-t border-border bg-muted/30 px-6 py-4">
-        <Button variant="outline" className="rounded-md cursor-pointer">
+        <Button
+          type="button"
+          variant="outline"
+          className="rounded-md cursor-pointer"
+          onClick={handleCancel}
+          disabled={updateProfileMutation.isPending}
+        >
           Cancel
         </Button>
-        <Button className="rounded-md cursor-pointer">Save Changes</Button>
+        <Button
+          type="submit"
+          form="profile-form"
+          className="rounded-md cursor-pointer"
+          disabled={updateProfileMutation.isPending || isLoading}
+        >
+          {updateProfileMutation.isPending && (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          )}
+          Save Changes
+        </Button>
       </div>
     </div>
   );

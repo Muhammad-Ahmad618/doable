@@ -5,7 +5,7 @@ const api = axios.create({
   withCredentials: true,
 });
 
-const AUTH_ROUTES = ["/auth/login", "/auth/register", "/auth/refresh"];
+const AUTH_ROUTES = ["/auth/login", "/auth/register", "/refresh"];
 
 let refreshPromise: Promise<unknown> | null = null;
 
@@ -33,7 +33,7 @@ api.interceptors.response.use(
     try {
       // Share one refresh across concurrent 401s
       refreshPromise ??= api
-        .post("/auth/refresh")
+        .post("/refresh")
         .finally(() => (refreshPromise = null));
       await refreshPromise;
       return api(original);

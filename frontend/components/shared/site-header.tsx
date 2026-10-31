@@ -13,6 +13,7 @@ import {
 import { NavUser } from "../custom/nav-user";
 import { SearchInput } from "./search-input";
 import { Bell, CheckCheck, Circle } from "lucide-react";
+import { useGetCurrentUser } from "@/hooks/user/settings";
 import { cn } from "@/lib/utils";
 
 type Notification = {
@@ -50,6 +51,7 @@ const notifications: Notification[] = [
 export function SiteHeader() {
   const [items, setItems] = useState(notifications);
   const unreadCount = items.filter((n) => n.unread).length;
+  const { data: user, isLoading } = useGetCurrentUser();
 
   const markAllRead = () =>
     setItems((prev) => prev.map((n) => ({ ...n, unread: false })));
@@ -167,9 +169,9 @@ export function SiteHeader() {
 
           <NavUser
             user={{
-              name: "Admin",
-              email: "admin@doable.com",
-              avatar: "/avatars/shadcn.jpg",
+              name: user?.username || "",
+              email: user?.email || "",
+              avatar: user?.avatar_url || "U",
             }}
           />
         </div>

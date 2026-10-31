@@ -64,7 +64,7 @@ export const getCurrentUser = async (id: number) => {
   try {
     const result = await pool.query(
       `
-      SELECT id, username, email, bio, avatar_url, role, created_at 
+      SELECT username, email, bio, avatar_url, role, created_at 
       FROM users 
       WHERE id = $1 AND deleted_at IS NULL
       `,
@@ -229,7 +229,7 @@ export const upsertUserPreferences = async (
       at_risk_alerts = $3,
       task_assigned = $4,
       task_due_soon = $5,
-      comment_mentions = $6
+      comment_mentions = $6,
       updated_at = NOW()
       RETURNING *
       `,
