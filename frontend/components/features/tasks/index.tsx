@@ -9,7 +9,7 @@ import {
   AlertDialogTitle,
   AlertDialogDescription,
 } from "@/components/ui/alert-dialog";
-import { useState } from "react";
+import { use, useMemo, useState } from "react";
 import { TaskHeader } from "@/components/features/tasks/header";
 import { TaskTable } from "@/components/features/tasks/taskTable";
 import { TaskSheet } from "./taskSheet";
@@ -29,6 +29,7 @@ export function PersonalTasks() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
+  const [searchQuery, setSearchQuery] = useState("");
   const [openSheet, setOpenSheet] = useState<boolean>(false);
   const [selectedTask, setSelectedTask] = useState<Tasks | undefined>(
     undefined,
@@ -43,6 +44,7 @@ export function PersonalTasks() {
     Tasks | undefined
   >(undefined);
 
+  //hooks
   const {
     data: tasks,
     isLoading,
@@ -82,9 +84,25 @@ export function PersonalTasks() {
     }
   };
 
+  const filteredTasks = useMemo(() => {
+    if (!searchQuery.trim()) return tasks?.data;
+    const query = searchQuery.toLowerCase();
+    return tasks?.data.filter(
+      (task) =>
+        task.title.toLowerCase().includes(query) ||
+        task.status.toLowerCase().includes(query) ||
+        task.assignee?.toLowerCase().includes(query),
+    );
+  }, [tasks, searchQuery]);
+
   return (
     <div>
-      <TaskHeader />
+      <TaskHeader
+        searchQuery={searchQuery}
+        searchChange={(val) => {
+          setSearchQuery(val);
+        }}
+      />
 
       {isLoading ? (
         <TableSkeleton />
@@ -94,7 +112,7 @@ export function PersonalTasks() {
         </div>
       ) : (
         <TaskTable
-          data={tasks?.data || []}
+          data={filteredTasks || []}
           pagination={tasks?.pagination}
           onPageChange={setPage}
           onLimitChange={setLimit}

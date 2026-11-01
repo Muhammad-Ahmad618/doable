@@ -22,17 +22,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatDate } from "@/lib/dateFormater";
-import {
-  EllipsisVertical,
-  ChevronLeft,
-  ChevronRight,
-  RotateCcw,
-  Eye,
-  Trash2,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, RotateCcw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tasks } from "@/types/task";
+import { TrashTableProps } from "@/types/trash";
 import { StatusLabel } from "@/components/shared/status-label";
 
 const columns = [
@@ -46,26 +39,11 @@ const columns = [
   "Actions",
 ] as const;
 
-interface TrashTableProps {
-  data: Tasks[];
-  pagination?: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-  onPageChange?: (page: number) => void;
-  onLimitChange?: (limit: number) => void;
-  onView: (task: Tasks) => void;
-  onRestore: (task: Tasks) => void;
-}
-
 export function TrashTable({
   data,
   pagination,
   onPageChange,
   onLimitChange,
-  onView,
   onRestore,
 }: TrashTableProps) {
   const page = pagination?.page || 1;
@@ -122,7 +100,6 @@ export function TrashTable({
                 <TableCell className="py-3 px-5 whitespace-nowrap font-medium text-foreground max-w-xs truncate">
                   <button
                     type="button"
-                    onClick={() => onView(task)}
                     className="hover:underline text-left cursor-pointer truncate max-w-full block"
                     title={task.title}
                   >

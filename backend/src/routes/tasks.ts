@@ -18,6 +18,7 @@ import {
   fetchAllSubTasks,
   removeSubtask,
   toggleSubtaskStatus,
+  fetchMyDeletedTasks,
 } from "../controllers/task_controller.js";
 import { protect } from "@/middleware/authentication.js";
 import { authorize } from "@/middleware/authorization.js";
@@ -32,9 +33,11 @@ router.patch("/task/:id/due-date", protect, updateTaskDueDate);
 router.patch("/task/:id/priority", protect, updateTaskPriority);
 router.delete("/task/:id", protect, removeTask);
 router.delete("/task/:id/hard", protect, hardDeleteTaskController);
-router.post("/task/recover/:id", protect, recoverTask);
 router.get("/task/my-tasks", protect, fetchMyTasks);
 router.get("/task/assigned/:id", protect, fetchAssignedTasks);
+//Deleted Tasks
+router.get("/task/trash-tasks", protect, fetchMyDeletedTasks);
+router.post("/task/recover/:id", protect, recoverTask);
 
 // Daily Focus
 router.get("/task/focus", protect, getDailyFocus);

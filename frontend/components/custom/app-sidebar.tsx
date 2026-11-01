@@ -44,14 +44,14 @@ const data = {
       icon: <Folder />,
     },
     {
-      title: "Settings",
-      url: "/settings",
-      icon: <Settings />,
-    },
-    {
       title: "Trash",
       url: "/trash",
       icon: <Trash2 />,
+    },
+    {
+      title: "Settings",
+      url: "/settings",
+      icon: <Settings />,
     },
     {
       title: "Feedback",

@@ -10,16 +10,8 @@ import {
   AlertDialogDescription,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Tasks } from "@/types/task";
 import { RotateCcw, Loader2 } from "lucide-react";
-
-interface RestoreDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  task?: Tasks;
-  onConfirm: () => Promise<void> | void;
-  isPending?: boolean;
-}
+import { RestoreDialogProps } from "@/types/trash";
 
 export function RestoreDialog({
   open,

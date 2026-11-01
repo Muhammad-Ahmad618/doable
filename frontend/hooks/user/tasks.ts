@@ -87,6 +87,9 @@ export const useRemoveTask = () => {
       QueryClient.invalidateQueries({
         queryKey: ["dashboard"],
       });
+      QueryClient.invalidateQueries({
+        queryKey: ["trash-tasks"],
+      });
       toast.success("Task deleted successfully");
     },
     onError: (error: ApiError) => {
@@ -115,6 +118,9 @@ export const useUpdateTaskStatus = () => {
       });
       QueryClient.invalidateQueries({
         queryKey: ["dashboard"],
+      });
+      QueryClient.invalidateQueries({
+        queryKey: ["trash-tasks"],
       });
 
       toast.success("Task status updated successfully");
@@ -149,6 +155,9 @@ export const useUpdateTaskDueDate = () => {
       QueryClient.invalidateQueries({
         queryKey: ["dashboard"],
       });
+      QueryClient.invalidateQueries({
+        queryKey: ["trash-tasks"],
+      });
 
       toast.success("Task due date updated successfully");
     },
@@ -182,6 +191,9 @@ export const useUpdatePriority = () => {
       });
       QueryClient.invalidateQueries({
         queryKey: ["dashboard"],
+      });
+      QueryClient.invalidateQueries({
+        queryKey: ["trash-tasks"],
       });
 
       toast.success("Task priority updated successfully");

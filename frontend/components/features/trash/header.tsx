@@ -1,14 +1,9 @@
 "use client";
 
-import { Trash2, Search, RotateCcw } from "lucide-react";
+import { Search, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-
-interface TrashHeaderProps {
-  totalCount?: number;
-  searchQuery: string;
-  onSearchChange: (value: string) => void;
-}
+import { TrashHeaderProps } from "@/types/trash";
 
 export function TrashHeader({
   totalCount = 0,
