@@ -23,7 +23,7 @@ export const getTaskById = async (id: number) => {
       "SELECT * FROM tasks WHERE task_id = $1 and deleted_at IS NULL",
       [id],
     );
-    return result.rows;
+    return result.rows[0] ?? null;
   } catch (error) {
     console.log("Error Fetching Task Please Try Again.", error);
     throw error;
