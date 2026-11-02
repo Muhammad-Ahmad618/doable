@@ -61,7 +61,7 @@ export function TaskHeader({ searchQuery, searchChange }: searchProps) {
         <Input
           value={searchQuery}
           onChange={(e) => searchChange(e.target.value)}
-          placeholder="Search deleted tasks..."
+          placeholder="Search tasks..."
           className="h-9 pl-9 rounded-lg text-sm bg-card border-border/80"
         />
       </div>
