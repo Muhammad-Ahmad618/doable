@@ -9,7 +9,7 @@ import {
   AlertDialogTitle,
   AlertDialogDescription,
 } from "@/components/ui/alert-dialog";
-import { use, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { TaskHeader } from "@/components/features/tasks/header";
 import { TaskTable } from "@/components/features/tasks/taskTable";
 import { TaskSheet } from "./taskSheet";
@@ -109,6 +109,15 @@ export function PersonalTasks() {
       ) : isError ? (
         <div className="mt-5 border rounded-xl p-2">
           <SectionError onRetry={refetch} />
+        </div>
+      ) : filteredTasks?.length == 0 ? (
+        <div className="mt-5 flex flex-col items-center justify-center rounded-xl border p-10 text-center">
+          <p className="text-sm font-medium">No tasks found</p>
+          <p className="text-sm text-muted-foreground">
+            {searchQuery.trim()
+              ? "Try a different search."
+              : "Create a task to get started."}
+          </p>
         </div>
       ) : (
         <TaskTable

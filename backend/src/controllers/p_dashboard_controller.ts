@@ -62,6 +62,14 @@ export const fetchRecentTasks = async (req: Request, res: Response) => {
 
   try {
     const tasks = await getRecentTasks(userId);
+
+    if (tasks.length === 0) {
+      return res.status(200).json({
+        message: "No task found",
+        data: [],
+      });
+    }
+
     return res.status(200).json({
       message: "Recent tasks fetched successfully",
       data: tasks,

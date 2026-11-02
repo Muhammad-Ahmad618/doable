@@ -38,7 +38,7 @@ export const fetchAllTasks = async (req: Request, res: Response) => {
     const tasks = await getAllTasks(limitNum, offsetNum, statusVal);
 
     if (tasks.length === 0) {
-      return res.status(404).json({ message: "No tasks found" });
+      return res.status(200).json({ message: "No tasks found", data: [] });
     }
 
     return res
@@ -66,7 +66,9 @@ export const fetchMyTasks = async (req: Request, res: Response) => {
     const tasks = await getMyTasks(user_id, limitNum, offsetNum, statusVal);
 
     if (tasks.length === 0) {
-      return res.status(404).json({ message: "No tasks found for this user" });
+      return res
+        .status(200)
+        .json({ message: "No tasks found for this user", data: [] });
     }
 
     const total = Number(tasks[0].total_count || 0);

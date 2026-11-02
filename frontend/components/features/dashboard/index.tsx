@@ -205,6 +205,15 @@ export function Dashboard() {
                   onRetry={refetchRecentTasks}
                 />
               </div>
+            ) : recentTasks?.length === 0 ? (
+              <div>
+                <div className="mt-5 flex flex-col items-center justify-center rounded-xl border p-10 text-center">
+                  <p className="text-sm font-medium">No tasks found</p>
+                  <p className="text-sm text-muted-foreground">
+                    Create a task to get started.
+                  </p>
+                </div>
+              </div>
             ) : (
               <RecentTaskTable
                 tasks={recentTasks || []}
