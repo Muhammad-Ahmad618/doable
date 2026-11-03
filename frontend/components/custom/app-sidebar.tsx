@@ -10,6 +10,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarFooter,
 } from "@/components/ui/sidebar";
 
 import {
@@ -52,11 +53,6 @@ const data = {
       title: "Settings",
       url: "/settings",
       icon: <Settings />,
-    },
-    {
-      title: "Feedback",
-      url: "/feedback",
-      icon: <MessageSquare />,
     },
   ],
 };

@@ -80,7 +80,7 @@ export function Dashboard() {
                 Daily Focus Assistant
               </p>
             </div>
-            <h2 className="font-semibold text-xl">
+            <h2 className="font-semibold text-xl text-foreground">
               You have {dailyFocus?.task_analyzed || 0} high-priority tasks
               requiring attention
             </h2>
@@ -117,12 +117,10 @@ export function Dashboard() {
               ))
             ) : isError ? (
               <div className="col-span-full">
-                <Card className="p-2 rounded-lg">
-                  <SectionError
-                    message="Could not load dashboard statistics."
-                    onRetry={refetchStats}
-                  />
-                </Card>
+                <SectionError
+                  message="Could not load dashboard statistics."
+                  onRetry={refetchStats}
+                />
               </div>
             ) : (
               <>
@@ -156,12 +154,10 @@ export function Dashboard() {
               {isTaskTrendsLoading ? (
                 <ChartSkeleton />
               ) : isTaskTrendsError ? (
-                <Card className="rounded-lg h-full">
-                  <SectionError
-                    message="Could not load task trend data."
-                    onRetry={refetchTrends}
-                  />
-                </Card>
+                <SectionError
+                  message="Could not load task trend data."
+                  onRetry={refetchTrends}
+                />
               ) : (
                 <ChartAreaInteractive
                   chartData={taskTrends || []}
@@ -175,15 +171,10 @@ export function Dashboard() {
             {isAtRiskLoading ? (
               <AtRiskSkeleton />
             ) : isAtRiskError ? (
-              <div className="col-span-1 border border-border rounded-lg bg-card shadow-sm">
-                <div className="flex items-center gap-2 px-4 pt-4 pb-3 border-b border-border">
-                  <span className="font-semibold text-sm">At-Risk Tasks</span>
-                </div>
-                <SectionError
-                  message="Could not load at-risk tasks."
-                  onRetry={refetchAtRisk}
-                />
-              </div>
+              <SectionError
+                message="Could not load at-risk tasks."
+                onRetry={refetchAtRisk}
+              />
             ) : (
               <AtRiskTaskList atRiskTasks={atriskTasks || []} />
             )}
@@ -194,24 +185,24 @@ export function Dashboard() {
             {isRecentTasksLoading ? (
               <TableSkeleton />
             ) : isRecentTasksError ? (
+              <SectionError
+                message="Could not load recent tasks."
+                onRetry={refetchRecentTasks}
+              />
+            ) : recentTasks?.length === 0 ? (
               <div className="rounded-xl border border-border bg-card shadow-sm">
                 <div className="px-5 py-3 border-b border-border">
                   <h2 className="text-base font-semibold tracking-tight">
                     Recent Tasks
                   </h2>
                 </div>
-                <SectionError
-                  message="Could not load recent tasks."
-                  onRetry={refetchRecentTasks}
-                />
-              </div>
-            ) : recentTasks?.length === 0 ? (
-              <div>
-                <div className="mt-5 flex flex-col items-center justify-center rounded-xl border p-10 text-center">
-                  <p className="text-sm font-medium">No tasks found</p>
-                  <p className="text-sm text-muted-foreground">
-                    Create a task to get started.
-                  </p>
+                <div>
+                  <div className="mt-5 flex flex-col items-center justify-center rounded-xl border p-10 text-center">
+                    <p className="text-sm font-medium">No tasks found</p>
+                    <p className="text-sm text-muted-foreground">
+                      Create a task to get started.
+                    </p>
+                  </div>
                 </div>
               </div>
             ) : (

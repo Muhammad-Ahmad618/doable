@@ -18,7 +18,7 @@ export function StatCard({
 }: SectionCardProps) {
   return (
     <Card
-      className={`@container/card border-t-4 ${accentColor} p-5 shadow-sm transition-shadow hover:shadow rounded-lg`}
+      className={`@container/card ${accentColor} p-5 shadow-sm transition-shadow hover:shadow rounded-lg`}
     >
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">

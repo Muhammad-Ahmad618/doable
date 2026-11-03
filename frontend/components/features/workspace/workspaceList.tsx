@@ -95,9 +95,7 @@ export function WorkspaceList() {
         {isLoading ? (
           <WorkspaceCardSkeleton />
         ) : isError ? (
-          <div className="rounded-xl border p-2">
-            <SectionError onRetry={refetch} />
-          </div>
+          <SectionError onRetry={refetch} />
         ) : workspaces && workspaces.length > 0 ? (
           <div className="grid auto-rows-fr grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
             {workspaces.map((workspace) => (

@@ -24,6 +24,7 @@ import {
 import { TableSkeleton } from "@/components/custom/table-skeleton";
 import { SectionError } from "@/components/shared/error-block";
 import { Loader2, Trash2 } from "lucide-react";
+import { EmptyState } from "@/components/shared/empty-state";
 
 export function PersonalTasks() {
   const [page, setPage] = useState(1);
@@ -107,18 +108,18 @@ export function PersonalTasks() {
       {isLoading ? (
         <TableSkeleton />
       ) : isError ? (
-        <div className="mt-5 border rounded-xl p-2">
+        <div className="mt-5">
           <SectionError onRetry={refetch} />
         </div>
       ) : filteredTasks?.length == 0 ? (
-        <div className="mt-5 flex flex-col items-center justify-center rounded-xl border p-10 text-center">
-          <p className="text-sm font-medium">No tasks found</p>
-          <p className="text-sm text-muted-foreground">
-            {searchQuery.trim()
-              ? "Try a different search."
-              : "Create a task to get started."}
-          </p>
-        </div>
+        <EmptyState
+          title="No Task Found"
+          description={
+            searchQuery.trim()
+              ? "try a different search"
+              : "Create one to get started"
+          }
+        />
       ) : (
         <TaskTable
           data={filteredTasks || []}

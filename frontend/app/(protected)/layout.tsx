@@ -16,7 +16,7 @@ export default function ProtectedLayout({
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" />
+      <AppSidebar />
       <SidebarInset className="min-w-0 overflow-hidden">
         <SiteHeader />
         <div className="protected-layout">{children}</div>

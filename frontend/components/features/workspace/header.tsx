@@ -10,7 +10,7 @@ export function Header() {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0 max-w-2xl">
-        <h1 className="text-xl font-semibold">Workspaces</h1>
+        <h1 className="text-xl font-semibold text-foreground">Workspaces</h1>
         <p className="text-sm text-muted-foreground/70">
           View and manage your created and joined workspaces. Click a workspace
           to open it and continue your work.

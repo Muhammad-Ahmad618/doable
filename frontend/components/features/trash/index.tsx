@@ -73,9 +73,7 @@ export function TrashFeature() {
       {isLoading ? (
         <TableSkeleton />
       ) : isError ? (
-        <div className="mt-5 border rounded-xl p-2">
-          <SectionError onRetry={refetch} />
-        </div>
+        <SectionError onRetry={refetch} />
       ) : (
         <TrashTable
           data={paginatedTasks}

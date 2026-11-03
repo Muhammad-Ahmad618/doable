@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
 import { Tasks, Priority, Status } from "@/types/task";
 import {
   Send,
@@ -15,7 +14,6 @@ import {
   Briefcase,
   MessageSquare,
   AlertCircle,
-  InboxIcon,
 } from "lucide-react";
 import { TaskDetailModalProps } from "@/types/task";
 import { getPriorityColor } from "./priority-color";
@@ -42,6 +40,10 @@ export function TaskDetailModal({
   const [localTask, setLocalTask] = useState<Tasks | undefined>(task);
   const [newComment, setNewComment] = useState("");
 
+  useEffect(() => {
+    setLocalTask(task);
+  }, [task]);
+
   const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
   const { mutate: updateTaskDueDate } = useUpdateTaskDueDate();
   const { mutateAsync: updateTaskPriority } = useUpdatePriority();
@@ -50,13 +52,15 @@ export function TaskDetailModal({
     data: comments,
     isLoading: isCommentsLoading,
     isError: isCommentsError,
-  } = useGetTaskComments(localTask?.task_id);
+  } = useGetTaskComments(localTask?.task_id, {
+    enabled: open && Boolean(localTask?.task_id),
+  });
 
   if (!localTask) return null;
 
   const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim()) return;
+    if (!newComment.trim() || !localTask?.task_id) return;
 
     try {
       await createTaskComment({

@@ -4,14 +4,20 @@ import { toast } from "sonner";
 import { ApiError } from "next/dist/server/api-utils";
 import { Comment } from "@/types/comments";
 
-export const useGetTaskComments = (task_id: number | undefined) => {
+export const useGetTaskComments = (
+  task_id: number | undefined,
+  options?: { enabled?: boolean },
+) => {
+  const isEnabled = Boolean(task_id) && (options?.enabled ?? true);
+
   return useQuery<Comment[]>({
     queryKey: ["task-comments", task_id],
     queryFn: async () => {
       const response = await api.get(`/tasks/${task_id}/comments`);
       return response.data.data;
     },
-    refetchInterval: 1000 * 60 * 2, // 2 minutes
+    enabled: isEnabled,
+    refetchInterval: isEnabled ? 1000 * 60 * 2 : false, // 2 minutes
   });
 };
 
