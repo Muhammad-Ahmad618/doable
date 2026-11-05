@@ -153,11 +153,11 @@ export function TaskDetailModal({
             </div>
 
             {/* Description Section */}
-            <div className="space-y-2">
+            <div className="space-y-2 cursor-not-allowed">
               <label className="text-xs font-semibold text-muted-foreground tracking-wider uppercase">
                 Description
               </label>
-              <div className="text-sm bg-muted/20 hover:bg-muted/30 focus:bg-background border border-border/40 focus:border-primary/50 focus:ring-2 focus:ring-primary/10 w-full min-h-[90px] rounded-lg p-3 text-foreground transition-all outline-none">
+              <div className="text-sm bg-muted/20 hover:bg-muted/30 focus:bg-background border border-border/40 focus:border-primary/50 focus:ring-2 focus:ring-primary/10 w-full min-h-22.5 rounded-lg p-3 text-muted-foreground/65 transition-all outline-none">
                 {localTask.description}
               </div>
             </div>

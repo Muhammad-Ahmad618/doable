@@ -122,9 +122,9 @@ export function Appearance() {
           </div>
 
           <p className="text-xs text-muted-foreground/70 pt-2">
-            Selecting <strong>System</strong> will automatically match your
-            device&apos;s OS preference (switching between dark and light mode
-            when your system theme changes).
+            Selecting <b className="pr-1">System</b> will automatically match
+            your device&apos;s OS preference (switching between dark and light
+            mode when your system theme changes).
           </p>
         </div>
       </div>

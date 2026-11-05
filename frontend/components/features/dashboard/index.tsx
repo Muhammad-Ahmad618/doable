@@ -3,7 +3,14 @@
 import { ChartAreaInteractive } from "@/components/features/dashboard/taskCompletionChaart";
 import { StatCard } from "@/components/features/dashboard/statsCards";
 import { RecentTaskTable } from "@/components/features/dashboard/recentTaskTable";
-import { Sparkles } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  Hourglass,
+  ListTodo,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AtRiskTaskList } from "./atRiskTaskList";
 import { TaskDetailModal } from "@/components/custom/taskDetailModal";
@@ -16,7 +23,6 @@ import {
   useGetDailyFocus,
 } from "@/hooks/user/dashboard";
 import { recentTasks } from "@/types/dashboard";
-import { Card } from "@/components/ui/card";
 import { StatCardSkeleton } from "@/components/custom/stat-card-skeleton";
 import { ChartSkeleton } from "@/components/custom/chart-skeleton";
 import { AtRiskSkeleton } from "@/components/custom/atrisk-list-skeleton";
@@ -127,29 +133,44 @@ export function Dashboard() {
                 <StatCard
                   title="Total Tasks"
                   value={dashboardStats?.data?.total || 0}
+                  description="Tasks in your workspace"
+                  icon={ListTodo}
+                  accentColor="text-blue-500"
                 />
                 <StatCard
                   title="Completed"
                   value={dashboardStats?.data?.completed || 0}
+                  description="Successfully completed tasks"
+                  icon={CheckCircle2}
+                  accentColor="text-emerald-500"
                 />
                 <StatCard
                   title="In Progress"
                   value={dashboardStats?.data?.in_progress || 0}
+                  description="Tasks currently underway"
+                  icon={Hourglass}
+                  accentColor="text-sky-500"
                 />
                 <StatCard
                   title="Pending"
                   value={dashboardStats?.data?.pending || 0}
+                  description="Tasks not started yet"
+                  icon={Clock}
+                  accentColor="text-yellow-500"
                 />
                 <StatCard
                   title="Overdue"
                   value={dashboardStats?.data?.overdue || 0}
+                  description="Tasks past their due date"
+                  icon={AlertCircle}
+                  accentColor="text-rose-500"
                 />
               </>
             )}
           </div>
 
           {/* Chart + At-Risk Tasks */}
-          <div className="grid grid-cols-3 gap-3 px-4 lg:px-6">
+          <div className="grid grid-rows-2 xl:grid-rows-none grid-cols-2 xl:grid-cols-3 gap-3 px-4 lg:px-6">
             <div className="col-span-2">
               {isTaskTrendsLoading ? (
                 <ChartSkeleton />

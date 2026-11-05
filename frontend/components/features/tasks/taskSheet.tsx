@@ -50,8 +50,17 @@ export function TaskSheet({
 
   return (
     <div>
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent className="max-w-md!">
+      <Sheet
+        open={open}
+        onOpenChange={(value) => {
+          if (!value) formik.resetForm();
+          setOpen(value);
+        }}
+      >
+        <SheetContent
+          className="max-w-md!"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
           <SheetHeader>
             <SheetTitle className="text-lg font-semibold">
               {isUpdate ? "Update Task" : "Create Task"}
@@ -132,7 +141,7 @@ export function TaskSheet({
                   options={[
                     { label: "Pending", value: "pending" },
                     { label: "In Progress", value: "in_progress" },
-                    { label: "Done", value: "completed" },
+                    { label: "Completed", value: "completed" },
                   ]}
                   error={
                     formik.touched.status ? formik.errors.status : undefined

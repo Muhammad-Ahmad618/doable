@@ -138,8 +138,8 @@ export function Feedback() {
 
   // Form view
   return (
-    <div className="flex w-full justify-center p-4">
-      <div className="relative my-10 w-full max-w-xl overflow-hidden rounded-2xl border border-border/60 bg-card shadow-lg">
+    <div className=" w-full px-4">
+      <div className="relative w-full overflow-hidden rounded-2xl border border-border/60 bg-card shadow-lg">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-linear-to-b from-primary/10 to-transparent" />
 
         <div className="relative space-y-6 p-6 sm:p-10">

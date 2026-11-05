@@ -45,6 +45,7 @@ export const fetchDashboardTrends = async (req: Request, res: Response) => {
         period: item.period,
         completed: Number(item.completed),
         in_progress: Number(item.in_progress),
+        pending: Number(item.pending),
         overdue: Number(item.overdue),
       })),
     });

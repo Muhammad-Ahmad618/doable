@@ -35,7 +35,6 @@ export function NavUser({
     avatar: string;
   };
 }) {
-  const { isMobile } = useSidebar();
   const router = useRouter();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const { mutate: signOut, isPending } = useSignOut();
@@ -74,7 +73,7 @@ export function NavUser({
         >
           {/* User Profile */}
           <DropdownMenuLabel className="p-0 font-normal">
-            <div className="relative flex items-center gap-3 overflow-hidden rounded-xl bg-gradient-to-br from-blue-50/90 via-indigo-50/60 to-white/50 p-3 dark:from-blue-500/15 dark:via-indigo-500/10 dark:to-zinc-800/40">
+            <div className="relative flex items-center gap-3 overflow-hidden rounded-xl bg-linear-to-br from-blue-50/90 via-indigo-50/60 to-white/50 p-3 dark:from-blue-500/15 dark:via-indigo-500/10 dark:to-zinc-800/40">
               <div className="absolute -right-6 -top-8 h-24 w-24 rounded-full bg-blue-400/10 blur-2xl" />
 
               <Avatar className="relative h-11 w-11 shrink-0 rounded-xl border border-white/70 shadow-sm dark:border-white/10">
@@ -103,7 +102,7 @@ export function NavUser({
 
             <DropdownMenuGroup>
               <DropdownMenuItem
-                onClick={() => router.push("/settings")}
+                onClick={() => router.push("/settings?tab=profile")}
                 className="group flex h-10 cursor-pointer gap-3 rounded-lg px-2.5 text-sm transition-colors focus:bg-blue-50 dark:focus:bg-blue-500/10"
               >
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 transition-colors group-focus:bg-blue-500/15 dark:text-blue-400">
@@ -119,7 +118,7 @@ export function NavUser({
               </DropdownMenuItem>
 
               <DropdownMenuItem
-                onClick={() => router.push("/feedback")}
+                onClick={() => router.push("/settings?tab=help-feedback")}
                 className="group flex h-10 cursor-pointer gap-3 rounded-lg px-2.5 text-sm transition-colors focus:bg-blue-50 dark:focus:bg-blue-500/10"
               >
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">

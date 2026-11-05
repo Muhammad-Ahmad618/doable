@@ -12,9 +12,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NavUser } from "../custom/nav-user";
 import { SearchInput } from "./search-input";
-import { Bell, CheckCheck, Circle } from "lucide-react";
+import { Bell, CheckCheck, Circle, Moon, Sun } from "lucide-react";
 import { useGetCurrentUser } from "@/hooks/user/settings";
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
 
 type Notification = {
   id: string;
@@ -52,6 +53,7 @@ export function SiteHeader() {
   const [items, setItems] = useState(notifications);
   const unreadCount = items.filter((n) => n.unread).length;
   const { data: user, isLoading } = useGetCurrentUser();
+  const { resolvedTheme, setTheme } = useTheme();
 
   const markAllRead = () =>
     setItems((prev) => prev.map((n) => ({ ...n, unread: false })));
@@ -62,13 +64,30 @@ export function SiteHeader() {
         {/* Left Section */}
         <div className="flex items-center gap-2 w-full">
           <SidebarTrigger className="-ml-1 text-zinc-500 hover:text-zinc-900 dark:hover:text-white" />
-          <div className="flex-1 max-w-md hidden md:flex items-center justify-center">
-            <SearchInput />
-          </div>
         </div>
 
         {/* Right Section */}
         <div className="flex items-center justify-end min-w-fit gap-x-4">
+          {/* Theme Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+            className="cursor-pointer group relative h-10 w-10 rounded-full border border-blue-400/20 bg-linear-to-br from-blue-400/15 via-blue-500/10 to-indigo-500/20 text-blue-600 shadow-[0_2px_12px_rgba(59,130,246,0.12)] backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:border-blue-400/40 hover:from-blue-400/25 hover:via-blue-500/20 hover:to-indigo-500/30 hover:text-blue-700 hover:shadow-[0_4px_20px_rgba(59,130,246,0.25)] active:scale-95 dark:from-blue-400/20 dark:via-blue-500/15 dark:to-indigo-500/25 dark:text-blue-300 dark:hover:text-blue-200"
+            aria-label="Toggle theme"
+          >
+            <Sun
+              size={18}
+              strokeWidth={2}
+              className="transition-all duration-300 scale-100 rotate-0 dark:scale-0 dark:-rotate-90 absolute"
+            />
+            <Moon
+              size={18}
+              strokeWidth={2}
+              className="transition-all duration-300 scale-0 rotate-90 dark:scale-100 dark:rotate-0 absolute"
+            />
+          </Button>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button

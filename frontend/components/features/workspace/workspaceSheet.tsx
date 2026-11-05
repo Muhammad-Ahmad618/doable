@@ -9,7 +9,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import { useFormik } from "formik";
+import { Formik, useFormik } from "formik";
 import { workspaceSchema } from "@/schemas/workspaceSchema";
 import { toast } from "sonner";
 import { useRef, useState } from "react";
@@ -90,8 +90,17 @@ export function WorkspaceSheet({
 
   return (
     <>
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent className="max-w-md! px-2">
+      <Sheet
+        open={open}
+        onOpenChange={(value) => {
+          setOpen(value);
+          if (!value) return formik.resetForm();
+        }}
+      >
+        <SheetContent
+          className="max-w-md! px-2"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
           <SheetHeader>
             <SheetTitle className="text-lg font-semibold">
               Create Workspace

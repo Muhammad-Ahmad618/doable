@@ -38,7 +38,8 @@ export const getDashboardTrends = async (userId: Number, mode: string) => {
       
       COUNT (*) FILTER (WHERE status = 'completed') AS completed,
       COUNT (*) FILTER (WHERE status = 'in_progress') AS in_progress,
-      COUNT (*) FILTER (WHERE due_date <= NOW() AND status != 'completed') AS overdue
+      COUNT (*) FILTER (WHERE status = 'pending') AS pending,
+      COUNT (*) FILTER (WHERE due_date < NOW() AND status = 'pending') AS overdue
       FROM tasks
       WHERE (user_id = $1 OR assigned_to = $1) 
       AND deleted_at IS NULL

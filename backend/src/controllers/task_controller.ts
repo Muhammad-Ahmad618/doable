@@ -94,6 +94,8 @@ export const AddNewTask = async (req: Request, res: Response) => {
   const { title, description, workspace_id, assigned_to, priority, due_date } =
     req.body;
   const user_id = Number(req.user?.id);
+  const current_date = new Date();
+  const dueDate = new Date(due_date);
 
   if (!title || !description || !priority || !due_date) {
     return res.status(400).json({
@@ -105,12 +107,16 @@ export const AddNewTask = async (req: Request, res: Response) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
+  if (dueDate < current_date) {
+    return res.status(400).json({ message: "Due date cannot be in the past" });
+  }
+
   try {
     const task = await createTask(
       title,
       description,
       priority,
-      due_date,
+      dueDate,
       user_id,
       workspace_id,
       assigned_to,
@@ -365,16 +371,17 @@ export const hardDeleteTaskController = async (req: Request, res: Response) => {
 
 export const recoverTask = async (req: Request, res: Response) => {
   const id = Number(req.params.id);
+  const user_id = Number(req.user?.id);
+
+  if (!user_id) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
 
   if (!id) {
     return res.status(400).json({
       message: "Please provide task id",
     });
   }
-
-  // if (req.user?.role !== "admin") {
-  //   return res.status(403).json({ message: "Forbidden" });
-  // }
 
   try {
     const task = await restoreTask(id);

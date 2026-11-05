@@ -18,6 +18,7 @@ export interface DashboardTrends {
   period: "weekly" | "monthly";
   completed: number;
   in_progress: number;
+  pending: number;
   overdue: number;
 }
 
