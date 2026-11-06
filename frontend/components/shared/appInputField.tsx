@@ -60,7 +60,7 @@ export function AppInputField({
         )}
       >
         {leftIcon && (
-          <span className="text-gray-400 dark:text-gray-500 flex items-center justify-center shrink-0">
+          <span className="text-gray-400 dark:text-gray-500 flex items-center justify-center shrink-0 ">
             {leftIcon}
           </span>
         )}
@@ -69,7 +69,7 @@ export function AppInputField({
           id={inputId}
           type={isPassword && showPassword ? "text" : type}
           className={cn(
-            "text-[13px]! text-foreground border-none bg-transparent h-10 w-full p-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-400 dark:placeholder:text-gray-600 focus-visible:border-none aria-invalid:border-none aria-invalid:ring-0 dark:aria-invalid:border-none dark:aria-invalid:ring-0",
+            "text-[13px]! text-foreground border-none bg-transparent! h-10 w-full p-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-400 dark:placeholder:text-gray-600 focus-visible:border-none aria-invalid:border-none aria-invalid:ring-0 dark:aria-invalid:border-none dark:aria-invalid:ring-0",
             className,
           )}
           aria-invalid={!!error}

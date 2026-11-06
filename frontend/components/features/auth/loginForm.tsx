@@ -46,7 +46,7 @@ export function LoginForm() {
           onBlur={formik.handleBlur}
           error={formik.touched.email ? formik.errors.email : undefined}
           leftIcon={
-            <Mail className="text-zinc-400 dark:text-zinc-500 w-4 h-4" />
+            <Mail className="text-zinc-400 dark:text-zinc-500 w-4 h-4 " />
           }
           required
         />
@@ -107,7 +107,11 @@ export function LoginForm() {
       <p className="text-center text-sm text-muted-foreground mt-8">
         Don&apos;t have an account?{" "}
         <Link
-          href={redirect ? `/register?redirect=${encodeURIComponent(redirect)}` : "/register"}
+          href={
+            redirect
+              ? `/register?redirect=${encodeURIComponent(redirect)}`
+              : "/register"
+          }
           className="text-primary font-semibold hover:underline"
         >
           Sign up

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Profile } from "../tabs/profile";
 import { AccountSecurity } from "../tabs/accountSecurity";
@@ -38,10 +39,25 @@ export function SettingTabs() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
+  const [orientation, setOrientation] = useState<"horizontal" | "vertical">(
+    "vertical",
+  );
   const tabParam = searchParams.get("tab") ?? "";
   const activeTab: TabValue = TAB_VALUES.includes(tabParam)
     ? (tabParam as TabValue)
     : "profile";
+
+  const handleScreenSize = () => {
+    if (screen.width < 1024) {
+      setOrientation("horizontal");
+    } else {
+      setOrientation("vertical");
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("resize", handleScreenSize);
+  }, [orientation]);
 
   const handleTabChange = (value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -53,11 +69,19 @@ export function SettingTabs() {
     <Tabs
       value={activeTab}
       onValueChange={handleTabChange}
-      orientation="vertical"
-      className="gap-x-10"
+      orientation={orientation}
+      className=" gap-5 xl:gap-x-10"
     >
-      <div className="basis-[25%]">
-        <TabsList className="bg-transparent space-y-2">
+      <div className="basis-full lg:basis-[25%]">
+        <TabsList
+          className={cn(
+            "h-auto w-full bg-transparent p-0",
+            "flex flex-nowrap items-center justify-start gap-2",
+            "overflow-x-auto overflow-y-hidden",
+            "scrollbar-none",
+            "xl:flex-col xl:items-stretch xl:gap-2 xl:overflow-visible",
+          )}
+        >
           {tabs.map(({ value, label, icon: Icon }) => (
             <TabsTrigger
               key={value}
@@ -70,7 +94,7 @@ export function SettingTabs() {
                   : "",
               )}
               style={{
-                padding: "0.7rem 0.5rem",
+                padding: "0.7rem 0.8rem",
               }}
             >
               <Icon />
@@ -79,7 +103,7 @@ export function SettingTabs() {
           ))}
         </TabsList>
       </div>
-      <div className="basis-[75%] rounded-xl px-5">
+      <div className="basis-[75%] rounded-xl xl:px-5">
         <TabsContent value="profile">
           <Profile />
         </TabsContent>

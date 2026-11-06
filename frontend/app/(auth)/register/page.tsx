@@ -10,7 +10,7 @@ function register() {
       {/* Left: form */}
       <section className="flex flex-col px-6 py-8 sm:px-12 lg:px-20">
         <div className="flex flex-1 items-center justify-center py-10">
-          <div className="w-full max-w-md p-10 border rounded-lg lg:border-none lg:p-5">
+          <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-sm sm:p-10 lg:border-none lg:bg-transparent lg:p-5 lg:shadow-none">
             <Suspense
               fallback={
                 <div className="flex items-center justify-center">

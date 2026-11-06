@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -12,9 +13,9 @@ import {
 import {
   EllipsisVertical,
   Info,
-  CheckCheck,
   CalendarDays,
   Inbox,
+  Trash,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -26,11 +27,8 @@ import {
 import { StatusLabel } from "@/components/shared/status-label";
 import { recentTasks } from "@/types/dashboard";
 import { formatDate } from "@/lib/dateFormater";
-import { toast } from "sonner";
-
-function handleMarkAsDone(task: recentTasks) {
-  toast.success(`${task?.title} marked as done`);
-}
+import { useRemoveTask } from "@/hooks/user/tasks";
+import { DeleteTaskDialog } from "@/components/shared/delete-task-dialog";
 
 /* ---------- small helpers ---------- */
 
@@ -93,20 +91,40 @@ export function RecentTaskTable({
   tasks: recentTasks[];
   onView: (task: recentTasks) => void;
 }) {
+  const { mutateAsync: deleteTask, isPending: isPendingDelete } =
+    useRemoveTask();
+
+  const [openDialog, setOpenDialog] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState<recentTasks | undefined>(
+    undefined,
+  );
+
+  const handleDelete = async () => {
+    if (taskToDelete) {
+      try {
+        await deleteTask(taskToDelete.task_id);
+        setOpenDialog(false);
+        setTaskToDelete(undefined);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
   return (
     <div
-      className="relative overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-b from-card to-muted/20
+      className="relative overflow-hidden rounded-2xl border border-border/50 bg-linear-to-b from-card to-muted/20
         shadow-[0_1px_2px_rgba(15,23,42,0.06),0_4px_12px_rgba(15,23,42,0.06),0_12px_28px_-8px_rgba(15,23,42,0.10)]
         dark:to-card/60
         dark:shadow-[0_1px_2px_rgba(0,0,0,0.4),0_8px_24px_rgba(0,0,0,0.35)]"
     >
       {/* thin light line on the top edge */}
-      <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/70 to-transparent dark:via-white/15" />
+      <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-linear-to-r from-transparent via-white/70 to-transparent dark:via-white/15" />
 
       {/* Header */}
       <div className="flex items-center justify-between gap-3 px-6 py-5">
         <div>
-          <h2 className="text-base font-semibold tracking-tight">
+          <h2 className="text-base text-foreground font-semibold tracking-tight">
             Recent Tasks
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
@@ -166,13 +184,13 @@ export function RecentTaskTable({
                 <TableRow
                   key={idx}
                   onClick={() => onView(task)}
-                  className="group cursor-pointer border-border/40 transition-colors hover:bg-muted/40 dark:hover:bg-white/[0.04]"
+                  className="group cursor-pointer border-border/40 transition-colors hover:bg-muted/40 dark:hover:bg-white/4"
                 >
                   <TableCell className="px-6 py-4 text-xs font-medium tabular-nums text-muted-foreground">
                     {String(idx + 1).padStart(2, "0")}
                   </TableCell>
 
-                  <TableCell className="max-w-[260px] px-4 py-4">
+                  <TableCell className="max-w-65 px-4 py-4">
                     <p className="truncate text-sm font-medium text-foreground">
                       {task.title}
                     </p>
@@ -195,7 +213,7 @@ export function RecentTaskTable({
 
                   <TableCell className="px-4 py-4">
                     {task.workspace_name ? (
-                      <span className="inline-flex max-w-[160px] items-center rounded-md bg-muted/60 px-2 py-1 text-xs font-medium text-foreground/80 ring-1 ring-inset ring-border/60">
+                      <span className="inline-flex max-w-40 items-center rounded-md bg-muted/60 px-2 py-1 text-xs font-medium text-foreground/80 ring-1 ring-inset ring-border/60">
                         <span className="truncate">{task.workspace_name}</span>
                       </span>
                     ) : (
@@ -205,7 +223,7 @@ export function RecentTaskTable({
                     )}
                   </TableCell>
 
-                  <TableCell className="px-4 py-4">
+                  <TableCell className="px-4 py-4 text-foreground">
                     <StatusLabel status={task?.status || "pending"} />
                   </TableCell>
 
@@ -235,11 +253,15 @@ export function RecentTaskTable({
                             <Info className="mr-2 size-4" /> View Details
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => handleMarkAsDone(task)}
+                            onClick={() => {
+                              setTaskToDelete(task);
+                              setOpenDialog(true);
+                            }}
+                            variant="destructive"
                             className="rounded-lg"
                           >
-                            <CheckCheck className="mr-2 size-4 text-emerald-600 dark:text-emerald-400" />
-                            Mark as Done
+                            <Trash className="h-4 w-4 mr-2" />
+                            Delete Task
                           </DropdownMenuItem>
                         </DropdownMenuGroup>
                       </DropdownMenuContent>
@@ -251,6 +273,14 @@ export function RecentTaskTable({
           </Table>
         </div>
       )}
+
+      <DeleteTaskDialog
+        open={openDialog}
+        onOpenChange={setOpenDialog}
+        taskTitle={taskToDelete?.title}
+        isPending={isPendingDelete}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }
