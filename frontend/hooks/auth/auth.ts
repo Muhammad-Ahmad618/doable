@@ -13,13 +13,13 @@ export const useRegister = () => {
   return useMutation({
     mutationFn: async (data: registerPayload) => {
       const res = await api.post("/auth/register", data);
-      return res.data;
+      return { ...res.data, redirect: data.redirect };
     },
     onSuccess: (data) => {
       toast.success("Registered successfully");
 
       const safeRedirect =
-        data.redirect?.startWith("/") && data.redirect?.startWith("//")
+        data.redirect?.startsWith("/") && !data.redirect?.startsWith("//")
           ? data.redirect
           : null;
 
@@ -42,14 +42,14 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: async (data: loginPayload) => {
       const res = await api.post("/auth/login", data);
-      return res.data;
+      return { ...res.data, redirect: data.redirect };
     },
     onSuccess: (data) => {
       setUser(data.user as authUser);
       toast.success("Login successful");
 
       const safeRedirect =
-        data.redirect?.startWith("/") && !data.redirect?.startWith("//")
+        data.redirect?.startsWith("/") && !data.redirect?.startsWith("//")
           ? data.redirect
           : null;
 
