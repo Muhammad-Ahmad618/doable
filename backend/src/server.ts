@@ -10,6 +10,7 @@ import PersonalDashBoardRoutes from "./routes/p_dashboard.js";
 import notificationRoutes from "./routes/notifications.js";
 import feedbackRoutes from "@/routes/feedback.js";
 import healthRoute from "@/routes/health.js";
+import chatRoute from "@/routes/chat.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -42,6 +43,7 @@ app.use("/api/v1", taskCommentRoutes);
 app.use("/api/v1", workspaceRoutes);
 app.use("/api/v1", PersonalDashBoardRoutes);
 app.use("/api/v1", feedbackRoutes);
+app.use("/api/v1", chatRoute);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

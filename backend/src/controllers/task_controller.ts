@@ -52,9 +52,13 @@ export const fetchAllTasks = async (req: Request, res: Response) => {
 };
 
 export const fetchMyTasks = async (req: Request, res: Response) => {
-  const { limit, offset, status } = req.query;
+  const { limit, offset, page, status } = req.query;
   const limitNum = limit ? Number(limit) : 10;
-  const offsetNum = offset ? Number(offset) : 0;
+  const offsetNum = offset
+    ? Number(offset)
+    : page
+    ? (Number(page) - 1) * limitNum
+    : 0;
   const statusVal = (status as "pending" | "in_progress" | "completed") || null;
   const user_id = Number(req.user?.id);
 
@@ -63,15 +67,25 @@ export const fetchMyTasks = async (req: Request, res: Response) => {
   }
 
   try {
-    const tasks = await getMyTasks(user_id, limitNum, offsetNum, statusVal);
+    const { tasks, total } = await getMyTasks(
+      user_id,
+      limitNum,
+      offsetNum,
+      statusVal,
+    );
 
     if (tasks.length === 0) {
-      return res
-        .status(200)
-        .json({ message: "No tasks found for this user", data: [] });
+      return res.status(200).json({
+        message: "No tasks found for this user",
+        data: [],
+        pagination: {
+          page: Math.floor(offsetNum / limitNum) + 1,
+          limit: limitNum,
+          total: 0,
+          totalPages: 0,
+        },
+      });
     }
-
-    const total = Number(tasks[0].total_count || 0);
 
     return res.status(200).json({
       message: "Tasks fetched successfully",

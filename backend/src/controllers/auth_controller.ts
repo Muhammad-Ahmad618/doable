@@ -19,7 +19,7 @@ import {
   findRefreshToken,
   saveRefreshToken,
 } from "@/models/refresh_token_model.js";
-import { emailjs } from "@/services/transporter.js";
+import { emailjs } from "@/utils/transporter.js";
 
 // Login Logic
 export const login = async (req: Request, res: Response) => {

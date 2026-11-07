@@ -9,9 +9,7 @@ import {
   Clock,
   Hourglass,
   ListTodo,
-  Sparkles,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { AtRiskTaskList } from "./atRiskTaskList";
 import { TaskDetailModal } from "@/components/custom/taskDetailModal";
 import { useState } from "react";
@@ -20,7 +18,6 @@ import {
   useGetAtRiskTasks,
   useGetTaskTrends,
   useGetRecentTasks,
-  useGetDailyFocus,
 } from "@/hooks/user/dashboard";
 import { recentTasks } from "@/types/dashboard";
 import { StatCardSkeleton } from "@/components/custom/stat-card-skeleton";
@@ -28,8 +25,6 @@ import { ChartSkeleton } from "@/components/custom/chart-skeleton";
 import { AtRiskSkeleton } from "@/components/custom/atrisk-list-skeleton";
 import { TableSkeleton } from "@/components/custom/table-skeleton";
 import { SectionError } from "@/components/shared/error-block";
-import { Skeleton } from "@/components/ui/skeleton";
-import ReactMarkdown from "react-markdown";
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 export function Dashboard() {
@@ -66,55 +61,10 @@ export function Dashboard() {
     refetch: refetchRecentTasks,
   } = useGetRecentTasks();
 
-  const {
-    data: dailyFocus,
-    isLoading: isDailyFocusLoading,
-    isError: isDailyFocusError,
-    error: dailyFocusError,
-    refetch: refetchDailyFocus,
-  } = useGetDailyFocus();
-
   return (
     <>
       <div className="@container/main flex flex-1 flex-col gap-2">
         <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-          {/* Daily Focus Banner */}
-          <div className="p-4 lg:p-6 mx-6 rounded-xl border border-zinc-300 space-y-3">
-            <div className="flex items-center gap-1.5 justify-start">
-              <Sparkles className="text-primary size-4" />
-              <p className="font-semibold text-sm text-primary">
-                Daily Focus Assistant
-              </p>
-            </div>
-            <h2 className="font-semibold text-xl text-foreground">
-              You have {dailyFocus?.task_analyzed || 0} high-priority tasks
-              requiring attention
-            </h2>
-            <div className="text-zinc-500 text-xs lg:text-sm space-y-2 [&>p]:mb-2 [&>h3]:font-semibold [&>h3]:text-zinc-800 dark:[&>h3]:text-zinc-200 [&>h3]:mt-4 [&>ul]:list-disc [&>ul]:pl-5 [&>ul>li]:mb-1 [&>ol]:list-decimal [&>ol]:pl-5 [&>ol>li]:mb-1">
-              {isDailyFocusLoading ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-[90%]" />
-                  <Skeleton className="h-4 w-[80%]" />
-                </div>
-              ) : isDailyFocusError ? (
-                <span className="text-destructive">
-                  Failed to load focus.{dailyFocusError.message}
-                </span>
-              ) : (
-                <ReactMarkdown>{dailyFocus?.data}</ReactMarkdown>
-              )}
-            </div>
-            <Button
-              className="rounded-full text-sm p-5 cursor-pointer"
-              size={"lg"}
-              onClick={() => refetchDailyFocus()}
-              disabled={isDailyFocusLoading}
-            >
-              {isDailyFocusLoading ? "Generating..." : "Generate Focus"}
-            </Button>
-          </div>
-
           {/* Stat Cards */}
           <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-5 dark:*:data-[slot=card]:bg-card">
             {isLoading ? (

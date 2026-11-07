@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { emailjs } from "@/services/transporter.js";
+import { emailjs } from "@/utils/transporter.js";
 
 export const sendFeedback = async (req: Request, res: Response) => {
   const user_id = req.user?.id;

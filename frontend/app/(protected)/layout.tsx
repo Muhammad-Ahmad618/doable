@@ -1,6 +1,7 @@
 import { AppSidebar } from "@/components/custom/app-sidebar";
 import { SiteHeader } from "@/components/shared/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { ChatWidget } from "@/components/shared/chat-widget";
 
 export default function ProtectedLayout({
   children,
@@ -20,6 +21,7 @@ export default function ProtectedLayout({
       <SidebarInset className="min-w-0 overflow-hidden">
         <SiteHeader />
         <div className="protected-layout">{children}</div>
+        <ChatWidget />
       </SidebarInset>
     </SidebarProvider>
   );

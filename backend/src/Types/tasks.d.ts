@@ -9,6 +9,15 @@ export interface task {
   workspace_id?: number;
 }
 
+export type PromptTask = {
+  title: string;
+  priority: string;
+  status: string;
+  due_date: string | null;
+  assignee?: string | null;
+  workspace_name?: string | null;
+};
+
 export interface taskbreakDownProps {
   title: string;
   description: string;

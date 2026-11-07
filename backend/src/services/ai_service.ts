@@ -1,33 +1,12 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { task, taskRiskReport } from "@/Types/tasks.js";
+import { withRetry } from "@/utils/retry.js";
 
 const genAi = new GoogleGenerativeAI(process.env.GEMINI_AI || "");
 const model = genAi.getGenerativeModel(
   { model: "gemini-3.5-flash-lite" },
   { apiVersion: "v1beta" },
 );
-
-/** Retry a Gemini API call up to `maxAttempts` times on 503 Service Unavailable. */
-const withRetry = async <T>(
-  fn: () => Promise<T>,
-  maxAttempts = 3,
-  baseDelayMs = 1000,
-): Promise<T> => {
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      return await fn();
-    } catch (error: any) {
-      const is503 = error?.status === 503;
-      if (!is503 || attempt === maxAttempts) throw error;
-      const delay = baseDelayMs * 2 ** (attempt - 1);
-      console.warn(
-        `Gemini 503 – retrying in ${delay}ms (attempt ${attempt}/${maxAttempts})...`,
-      );
-      await new Promise((resolve) => setTimeout(resolve, delay));
-    }
-  }
-  throw new Error("Unreachable");
-};
 
 export const generateDailyFocus = async (tasks: task[]): Promise<string> => {
   if (tasks.length === 0) {

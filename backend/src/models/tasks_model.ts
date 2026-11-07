@@ -68,7 +68,11 @@ export const getMyTasks = async (
     query += ` OFFSET $${values.length}`;
 
     const result = await pool.query(query, values);
-    return result.rows;
+    const total =
+      result.rows.length > 0 ? Number(result.rows[0].total_count) : 0;
+    const tasks = result.rows.map(({ total_count, ...task }) => task);
+
+    return { tasks, total };
   } catch (error) {
     console.log("Error Fetching Tasks Please Try Again.", error);
     throw error;
@@ -423,6 +427,45 @@ export const deleteAllSubtasks = async (task_id: number) => {
     );
   } catch (error) {
     console.log("Error deleteing Sub Task Please Try Again.", error);
+    throw error;
+  }
+};
+
+export const getOpenTasks = async (user_id: number, limit = 40) => {
+  try {
+    const query = `SELECT
+    tasks.title,
+    tasks.priority,
+    tasks.status,
+    to_char(tasks.due_date, 'YYYY-MM-DD') AS due_date,
+    users.username AS assignee,
+    workspace.name AS workspace_name
+    FROM tasks
+    LEFT JOIN users ON tasks.assigned_to = users.id
+    LEFT JOIN workspace ON tasks.workspace_id = workspace.id
+    WHERE (tasks.user_id = $1 OR tasks.assigned_to = $1)
+    AND tasks.parent_task_id IS NULL
+    AND tasks.deleted_at IS NULL
+    AND tasks.status <> 'completed'
+    ORDER BY
+    tasks.due_date ASC NULLS LAST,
+    CASE tasks.priority
+      WHEN 'high' THEN 1
+      WHEN 'medium' THEN 2
+      ELSE 3
+    END
+    LIMIT $2
+`;
+    const result = await pool.query(query, [user_id, limit]);
+    return result.rows as {
+      title: string;
+      priority: string;
+      status: string;
+      due_date: string | null;
+      assignee: string | null;
+      workspace_name: string | null;
+    }[];
+  } catch (error) {
     throw error;
   }
 };
