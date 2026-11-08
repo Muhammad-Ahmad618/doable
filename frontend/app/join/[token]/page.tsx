@@ -36,16 +36,15 @@ export default function JoinPage() {
     reset: resetJoin,
   } = useJoinWorkspace();
 
-  const handleJoinWorkspace = async (tokenToJoin?: string) => {
-    const targetToken = tokenToJoin || token;
-    if (!targetToken) return;
-    await joinWorkspace(targetToken);
+  const handleJoinWorkspace = async () => {
+    if (!token || typeof token !== "string") return;
+    await joinWorkspace(token);
   };
 
   const handleRetry = () => {
     if (isJoinError) {
       resetJoin();
-      handleJoinWorkspace(token);
+      handleJoinWorkspace();
     } else {
       refetchPreview();
     }
@@ -73,7 +72,7 @@ export default function JoinPage() {
       previewError={isPreviewError}
       previewLoading={isPreviewLoading}
       onRetry={handleRetry}
-      onJoin={(targetToken) => handleJoinWorkspace(targetToken)}
+      onJoin={handleJoinWorkspace}
       onSignUp={() => router.push(`/register?redirect=${redirect}`)}
       onLogin={() => router.push(`/login?redirect=${redirect}`)}
       onDecline={() => router.push("/")}

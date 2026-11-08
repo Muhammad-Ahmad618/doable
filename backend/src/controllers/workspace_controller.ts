@@ -392,10 +392,6 @@ export const joinWorkspaceViaInvite = async (req: Request, res: Response) => {
   const { token } = req.params;
   const user_id = Number(req.user?.id);
 
-  if (!user_id) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
   if (typeof token !== "string") {
     return res
       .status(400)

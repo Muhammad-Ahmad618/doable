@@ -19,7 +19,6 @@ import { JoinWorkspaceSkeleton } from "./joinWorkspaceSkeleton";
 import { JoinErrorState } from "./joinErrorState";
 import { cn } from "@/lib/utils";
 import { JoinViewProps } from "@/types/workspace-invite";
-import { useParams } from "next/navigation";
 
 const GRADIENTS = [
   "from-blue-600 via-indigo-600 to-violet-700",
@@ -69,9 +68,6 @@ export function JoinWorkspaceView({
   const memberCount = invite?.member_count ?? 0;
   const extra = Math.max(memberCount - avatars.length, 0);
   const gradientClass = getGradient(invite?.workspaceName);
-
-  const params = useParams();
-  const token = params?.token as string;
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-between overflow-hidden bg-background px-4 py-8">
@@ -209,7 +205,7 @@ export function JoinWorkspaceView({
                 /* ---- Logged in: join directly ---- */
                 <div className="mt-6 space-y-2.5">
                   <Button
-                    onClick={() => onJoin(token)}
+                    onClick={() => onJoin()}
                     disabled={isJoining}
                     className="h-12 w-full cursor-pointer rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:opacity-95 active:scale-[0.98]"
                   >
