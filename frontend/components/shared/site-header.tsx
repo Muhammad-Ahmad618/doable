@@ -16,6 +16,7 @@ import { Bell, CheckCheck, Circle, Moon, Sun } from "lucide-react";
 import { useGetCurrentUser } from "@/hooks/user/settings";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
+import Link from "next/link";
 
 type Notification = {
   id: string;
@@ -218,9 +219,11 @@ export function SiteHeader() {
 
               {/* Footer */}
               <div className="border-t border-zinc-200/60 bg-zinc-50/50 p-2 dark:border-white/10 dark:bg-white/2">
-                <button className="w-full rounded-xl py-2.5 text-xs font-semibold text-blue-600 transition-colors hover:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/10">
-                  View all notifications
-                </button>
+                <Link href="/inbox">
+                  <button className="w-full rounded-xl py-2.5 text-xs font-semibold text-blue-600 transition-colors hover:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/10 cursor-pointer">
+                    View all notifications
+                  </button>
+                </Link>
               </div>
             </DropdownMenuContent>
           </DropdownMenu>

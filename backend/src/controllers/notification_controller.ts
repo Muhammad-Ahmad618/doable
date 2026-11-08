@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import {
+  createNotifications,
   getAllNotifications,
-  getUnreadCount,
   updateAllNotificationsRead,
   updateNotificationRead,
 } from "@/models/notification_model.js";
@@ -13,46 +13,30 @@ export const fetchAllNotifications = async (req: Request, res: Response) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  try {
-    const response = await getAllNotifications(user_id);
+  const limit = Math.min(Number(req.query.limit) || 20, 50);
+  const page = Math.max(Number(req.query.page) || 1, 1);
+  const offset = (page - 1) * limit;
+  const unreadOnly = req.query.status === "unread";
 
-    if (!response || response.length === 0) {
-      return res.status(404).json({ message: "No notifications found" });
-    }
+  try {
+    const response = await getAllNotifications(
+      user_id,
+      limit,
+      offset,
+      unreadOnly,
+    );
 
     return res.status(200).json({
       message: "Notifications fetched successfully",
       data: response,
+      page,
+      limit,
+      totalPages: Math.ceil(
+        (unreadOnly ? response.unread : response.total) / limit,
+      ),
     });
   } catch (error) {
     return res.status(500).json({ message: "Error fetching notifications" });
-  }
-};
-
-export const fetchUnreadNotificationCount = async (
-  req: Request,
-  res: Response,
-) => {
-  const user_id = req.user?.id;
-
-  if (!user_id) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
-  try {
-    const response = await getUnreadCount(user_id);
-
-    if (!response || !response.length) {
-      return res.status(404).json({ message: "No notifications found" });
-    }
-    return res.status(200).json({
-      message: "Unread notification count fetched successfully",
-      data: response,
-    });
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Error fetching unread notifications count" });
   }
 };
 

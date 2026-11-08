@@ -18,7 +18,8 @@ import {
 import { JoinWorkspaceSkeleton } from "./joinWorkspaceSkeleton";
 import { JoinErrorState } from "./joinErrorState";
 import { cn } from "@/lib/utils";
-import { JoinViewProps } from "@/types/join";
+import { JoinViewProps } from "@/types/workspace-invite";
+import { useParams } from "next/navigation";
 
 const GRADIENTS = [
   "from-blue-600 via-indigo-600 to-violet-700",
@@ -40,6 +41,9 @@ const getGradient = (name?: string) => {
 
 export function JoinWorkspaceView({
   status,
+  isJoining: isJoiningProp,
+  isSuccess = false,
+  joinError = false,
   invite,
   isLoggedIn = false,
   errorMessage,
@@ -52,12 +56,11 @@ export function JoinWorkspaceView({
   onContinue,
   onRetry,
 }: JoinViewProps) {
+  const isJoining = isJoiningProp ?? Boolean(status);
   const isLoadingState =
-    previewLoading || (!invite && !previewError && status !== "error");
+    previewLoading || (!invite && !previewError && !joinError && !isSuccess);
   const isErrorState =
-    previewError ||
-    status === "error" ||
-    (!isLoadingState && !invite && status !== "success");
+    previewError || joinError || (!isLoadingState && !invite && !isSuccess);
 
   const initials = invite?.workspaceName
     ? invite.workspaceName.slice(0, 2).toUpperCase()
@@ -66,6 +69,9 @@ export function JoinWorkspaceView({
   const memberCount = invite?.member_count ?? 0;
   const extra = Math.max(memberCount - avatars.length, 0);
   const gradientClass = getGradient(invite?.workspaceName);
+
+  const params = useParams();
+  const token = params?.token as string;
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-between overflow-hidden bg-background px-4 py-8">
@@ -85,14 +91,14 @@ export function JoinWorkspaceView({
         {/* ---------------- 2. ERROR STATE ---------------- */}
         {!isLoadingState && isErrorState && (
           <JoinErrorState
-            status={status}
+            joinError={joinError}
             errorMessage={errorMessage}
             onRetry={onRetry}
             onContinue={onContinue}
           />
         )}
         {/* ---------------- 3. SUCCESS STATE ---------------- */}
-        {!isLoadingState && !isErrorState && status === "success" && (
+        {!isLoadingState && !isErrorState && isSuccess && (
           <div className="overflow-hidden rounded-3xl bg-card/90 shadow-2xl backdrop-blur-xl ring-1 ring-border/60 transition-all">
             <div className="px-6 py-10 text-center">
               <div className="relative mx-auto flex size-20 items-center justify-center">
@@ -123,149 +129,146 @@ export function JoinWorkspaceView({
         )}
 
         {/* ---------------- 4. READY / JOINING STATE ---------------- */}
-        {!isLoadingState &&
-          !isErrorState &&
-          (status === "ready" || status === "joining") &&
-          invite && (
-            <div className="overflow-hidden rounded-3xl bg-card/90 shadow-2xl backdrop-blur-xl ring-1 ring-border/60 transition-all">
-              {/* Workspace Header Banner */}
-              <div
-                className={cn(
-                  "relative h-28 bg-linear-to-br transition-all duration-500",
-                  gradientClass,
-                )}
-              >
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.2),transparent_70%)]" />
-                <div className="absolute bottom-2 right-3 flex items-center gap-1 rounded-full bg-black/20 px-2.5 py-1 text-[10px] font-medium text-white/90 backdrop-blur-md">
-                  <ShieldCheck className="size-3" />
-                  Verified Invitation
-                </div>
-              </div>
-
-              <div className="px-6 pb-6">
-                {/* Logo overlapping the banner */}
-                <div className="-mt-12 flex justify-center">
-                  <Avatar className="size-24 rounded-2xl ring-4 ring-card shadow-xl transition-transform hover:scale-105">
-                    {invite.logo_url ? (
-                      <AvatarImage
-                        src={invite.logo_url}
-                        alt={`${invite.workspaceName} logo`}
-                        className="rounded-2xl object-cover"
-                      />
-                    ) : null}
-                    <AvatarFallback
-                      className={cn(
-                        "rounded-2xl bg-linear-to-br text-3xl font-extrabold text-white shadow-inner",
-                        gradientClass,
-                      )}
-                    >
-                      {initials}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-
-                {/* Heading & Invitation Note */}
-                <div className="mt-4 text-center">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                    <Sparkles className="size-3.5" />
-                    You&apos;ve been invited
-                  </span>
-                  <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
-                    {invite.workspaceName}
-                  </h1>
-                </div>
-
-                {/* Member avatars */}
-                {memberCount > 0 && (
-                  <div className="mt-6 flex flex-col items-center justify-center gap-2 rounded-xl bg-muted/40 p-3 ring-1 ring-border/50">
-                    <div className="flex items-center gap-3">
-                      <AvatarGroup>
-                        {avatars.slice(0, 4).map((src, i) => (
-                          <Avatar key={i} className="size-8 ring-2 ring-card">
-                            {src ? <AvatarImage src={src} alt="" /> : null}
-                            <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
-                              ?
-                            </AvatarFallback>
-                          </Avatar>
-                        ))}
-                      </AvatarGroup>
-                      {extra > 0 && (
-                        <span className="text-xs font-medium text-muted-foreground">
-                          +{extra} other member{extra > 1 ? "s" : ""}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[11px] text-muted-foreground">
-                      Join your teammates collaborating on Doable
-                    </p>
-                  </div>
-                )}
-
-                {/* Actions */}
-                {isLoggedIn ? (
-                  /* ---- Logged in: join directly ---- */
-                  <div className="mt-6 space-y-2.5">
-                    <Button
-                      onClick={onJoin}
-                      disabled={status === "joining"}
-                      className="h-12 w-full cursor-pointer rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:opacity-95 active:scale-[0.98]"
-                    >
-                      {status === "joining" ? (
-                        <>
-                          <Loader2 className="mr-2 size-4 animate-spin" />
-                          Joining workspace...
-                        </>
-                      ) : (
-                        <>
-                          Join Workspace
-                          <ArrowRight className="ml-2 size-4" />
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      onClick={onDecline}
-                      disabled={status === "joining"}
-                      className="h-10 w-full cursor-pointer rounded-xl text-sm font-medium text-muted-foreground hover:bg-muted/60"
-                    >
-                      Not now
-                    </Button>
-                  </div>
-                ) : (
-                  /* ---- Logged out: sign up or log in first ---- */
-                  <div className="mt-6 space-y-3">
-                    <Button
-                      onClick={onSignUp}
-                      className="h-12 w-full cursor-pointer rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:opacity-95 active:scale-[0.98]"
-                    >
-                      <UserPlus className="mr-2 size-4" />
-                      Sign up with Doable to join
-                    </Button>
-
-                    <div className="flex items-center gap-3">
-                      <div className="h-px flex-1 bg-border/70" />
-                      <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                        or
-                      </span>
-                      <div className="h-px flex-1 bg-border/70" />
-                    </div>
-
-                    <Button
-                      variant="outline"
-                      onClick={onLogin}
-                      className="h-11 w-full cursor-pointer rounded-xl text-sm font-medium ring-1 ring-border/80 hover:bg-muted/50"
-                    >
-                      I already have an account
-                    </Button>
-
-                    <p className="text-center text-[11px] text-muted-foreground">
-                      You&apos;ll return automatically after signing in.
-                    </p>
-                  </div>
-                )}
+        {!isLoadingState && !isErrorState && !isSuccess && invite && (
+          <div className="overflow-hidden rounded-3xl bg-card/90 shadow-2xl backdrop-blur-xl ring-1 ring-border/60 transition-all">
+            {/* Workspace Header Banner */}
+            <div
+              className={cn(
+                "relative h-28 bg-linear-to-br transition-all duration-500",
+                gradientClass,
+              )}
+            >
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.2),transparent_70%)]" />
+              <div className="absolute bottom-2 right-3 flex items-center gap-1 rounded-full bg-black/20 px-2.5 py-1 text-[10px] font-medium text-white/90 backdrop-blur-md">
+                <ShieldCheck className="size-3" />
+                Verified Invitation
               </div>
             </div>
-          )}
+
+            <div className="px-6 pb-6">
+              {/* Logo overlapping the banner */}
+              <div className="-mt-12 flex justify-center">
+                <Avatar className="size-24 rounded-2xl ring-4 ring-card shadow-xl transition-transform hover:scale-105">
+                  {invite.logo_url ? (
+                    <AvatarImage
+                      src={invite.logo_url}
+                      alt={`${invite.workspaceName} logo`}
+                      className="rounded-2xl object-cover"
+                    />
+                  ) : null}
+                  <AvatarFallback
+                    className={cn(
+                      "rounded-2xl bg-linear-to-br text-3xl font-extrabold text-white shadow-inner",
+                      gradientClass,
+                    )}
+                  >
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+
+              {/* Heading & Invitation Note */}
+              <div className="mt-4 text-center">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                  <Sparkles className="size-3.5" />
+                  You&apos;ve been invited
+                </span>
+                <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
+                  {invite.workspaceName}
+                </h1>
+              </div>
+
+              {/* Member avatars */}
+              {memberCount > 0 && (
+                <div className="mt-6 flex flex-col items-center justify-center gap-2 rounded-xl bg-muted/40 p-3 ring-1 ring-border/50">
+                  <div className="flex items-center gap-3">
+                    <AvatarGroup>
+                      {avatars.slice(0, 4).map((src, i) => (
+                        <Avatar key={i} className="size-8 ring-2 ring-card">
+                          {src ? <AvatarImage src={src} alt="" /> : null}
+                          <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
+                            ?
+                          </AvatarFallback>
+                        </Avatar>
+                      ))}
+                    </AvatarGroup>
+                    {extra > 0 && (
+                      <span className="text-xs font-medium text-muted-foreground">
+                        +{extra} other member{extra > 1 ? "s" : ""}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Join your teammates collaborating on Doable
+                  </p>
+                </div>
+              )}
+
+              {/* Actions */}
+              {isLoggedIn ? (
+                /* ---- Logged in: join directly ---- */
+                <div className="mt-6 space-y-2.5">
+                  <Button
+                    onClick={() => onJoin(token)}
+                    disabled={isJoining}
+                    className="h-12 w-full cursor-pointer rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:opacity-95 active:scale-[0.98]"
+                  >
+                    {isJoining ? (
+                      <>
+                        <Loader2 className="mr-2 size-4 animate-spin" />
+                        Joining workspace...
+                      </>
+                    ) : (
+                      <>
+                        Join Workspace
+                        <ArrowRight className="ml-2 size-4" />
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={onDecline}
+                    disabled={isJoining}
+                    className="h-10 w-full cursor-pointer rounded-xl text-sm font-medium text-muted-foreground hover:bg-muted/60"
+                  >
+                    Not now
+                  </Button>
+                </div>
+              ) : (
+                /* ---- Logged out: sign up or log in first ---- */
+                <div className="mt-6 space-y-3">
+                  <Button
+                    onClick={onSignUp}
+                    className="h-12 w-full cursor-pointer rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:opacity-95 active:scale-[0.98]"
+                  >
+                    <UserPlus className="mr-2 size-4" />
+                    Sign up with Doable to join
+                  </Button>
+
+                  <div className="flex items-center gap-3">
+                    <div className="h-px flex-1 bg-border/70" />
+                    <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                      or
+                    </span>
+                    <div className="h-px flex-1 bg-border/70" />
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    onClick={onLogin}
+                    className="h-11 w-full cursor-pointer rounded-xl text-sm font-medium ring-1 ring-border/80 hover:bg-muted/50"
+                  >
+                    I already have an account
+                  </Button>
+
+                  <p className="text-center text-[11px] text-muted-foreground">
+                    You&apos;ll return automatically after signing in.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Footer Branding */}

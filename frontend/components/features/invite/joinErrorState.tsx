@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AlertCircle, RotateCcw } from "lucide-react";
-import { joinErrorProps } from "@/types/join";
+import { joinErrorProps } from "@/types/workspace-invite";
 
 export function JoinErrorState({
-  status,
+  joinError,
   errorMessage,
   onRetry,
   onContinue,
@@ -20,14 +20,14 @@ export function JoinErrorState({
         </div>
 
         <h1 className="mt-6 text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
-          {status === "error"
+          {joinError
             ? "Failed to Join Workspace"
             : "Invite Link Expired or Invalid"}
         </h1>
 
         <p className="mx-auto mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground">
           {errorMessage ||
-            (status === "error"
+            (joinError
               ? "We encountered an unexpected issue while adding you to this workspace. Please try again."
               : "This invite link is invalid, expired, or has already been used. Please request a new invite from the workspace administrator.")}
         </p>

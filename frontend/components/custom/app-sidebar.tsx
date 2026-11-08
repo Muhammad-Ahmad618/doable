@@ -10,7 +10,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarFooter,
 } from "@/components/ui/sidebar";
 
 import {
@@ -19,7 +18,7 @@ import {
   Folder,
   Settings,
   Trash2,
-  MessageSquare,
+  Inbox,
 } from "lucide-react";
 
 const data = {
@@ -43,6 +42,11 @@ const data = {
       title: "Workspace",
       url: "/workspace",
       icon: <Folder />,
+    },
+    {
+      title: "Inbox",
+      url: "/inbox",
+      icon: <Inbox />,
     },
     {
       title: "Trash",

@@ -38,11 +38,17 @@ api.interceptors.response.use(
       await refreshPromise;
       return api(original);
     } catch (refreshError) {
-      // Only redirect if we're not already on the login page
-      if (
-        typeof window !== "undefined" &&
-        window.location.pathname !== "/login"
-      ) {
+      // Only redirect if we're not on a public page (e.g. login, register, join)
+      const pathname =
+        typeof window !== "undefined" ? window.location.pathname : "";
+      const isPublicPath =
+        pathname === "/login" ||
+        pathname === "/register" ||
+        pathname === "/forgot-password" ||
+        pathname === "/reset-password" ||
+        pathname.startsWith("/join");
+
+      if (!isPublicPath) {
         window.location.assign("/login");
       }
       return Promise.reject(refreshError);

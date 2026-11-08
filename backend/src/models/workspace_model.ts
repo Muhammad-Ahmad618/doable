@@ -159,7 +159,7 @@ export const isWorkspaceMember = async (
     const result = await pool.query(
       `
       SELECT * FROM workspace_member
-      WHERE workspace_id = $1  and user_id = $2;
+      WHERE workspace_id = $1  and user_id = $2
       LIMIT 1
       `,
       [workspace_id, user_id],

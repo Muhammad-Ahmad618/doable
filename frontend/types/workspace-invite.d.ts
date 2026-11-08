@@ -8,13 +8,16 @@ export type InvitePreview = {
 };
 
 export type JoinViewProps = {
-  status: JoinStatus;
+  status?: boolean;
+  isJoining?: boolean;
+  isSuccess?: boolean;
+  joinError?: boolean;
   invite?: InvitePreview | null;
   isLoggedIn?: boolean;
   errorMessage?: string;
   previewError?: boolean;
   previewLoading?: boolean;
-  onJoin: () => void;
+  onJoin: (token?: string) => void;
   onSignUp: () => void;
   onLogin: () => void;
   onDecline: () => void;
@@ -23,8 +26,15 @@ export type JoinViewProps = {
 };
 
 export interface joinErrorProps {
-  status: JoinStatus;
+  joinError: boolean;
   errorMessage?: string;
   onRetry?: () => void;
   onContinue: () => void;
+}
+
+export interface joinWorkspaceResponse {
+  message: string;
+  data: {
+    workspace_id: string;
+  };
 }

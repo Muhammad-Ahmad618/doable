@@ -16,7 +16,7 @@ export const generateInviteLink = async (
     );
 
     const token = crypto.randomBytes(32).toString("hex");
-    const expires_at = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+    const expires_at = new Date(Date.now() + 6 * 60 * 60 * 1000);
 
     const result = await pool.query(
       `
@@ -43,12 +43,12 @@ export const getInviteByToken = async (token: string) => {
       `
      SELECT 
      workspace_invites.*,
-     workspace.name AS workspace_name,
+     workspace.name AS workspace_name
      FROM workspace_invites
      LEFT JOIN workspace ON workspace.id = workspace_invites.workspace_id 
      WHERE workspace_invites.token = $1 
      AND workspace_invites.is_active = true
-     AND workspace_invite.expires_at > NOW()
+     AND workspace_invites.expires_at > NOW()
         `,
       [token],
     );

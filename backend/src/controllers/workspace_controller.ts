@@ -416,6 +416,7 @@ export const joinWorkspaceViaInvite = async (req: Request, res: Response) => {
     if (alreadyMember) {
       return res.status(200).json({
         message: "You are already a member of this workspace",
+        data: invite.workspace_id,
       });
     }
 
