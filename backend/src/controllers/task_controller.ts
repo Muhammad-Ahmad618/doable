@@ -26,6 +26,8 @@ import {
   deleteAllSubtasks,
   getMyDeletedTasks,
 } from "@/models/tasks_model.js";
+import { notifyUser } from "@/utils/notify_user.js";
+import { NOTIFICATION_TYPES } from "@/constants/notifications.js";
 
 // Fetch All Tasks Accross DB
 export const fetchAllTasks = async (req: Request, res: Response) => {
@@ -57,8 +59,8 @@ export const fetchMyTasks = async (req: Request, res: Response) => {
   const offsetNum = offset
     ? Number(offset)
     : page
-    ? (Number(page) - 1) * limitNum
-    : 0;
+      ? (Number(page) - 1) * limitNum
+      : 0;
   const statusVal = (status as "pending" | "in_progress" | "completed") || null;
   const user_id = Number(req.user?.id);
 
@@ -135,6 +137,15 @@ export const AddNewTask = async (req: Request, res: Response) => {
       workspace_id,
       assigned_to,
     );
+
+    await notifyUser(
+      user_id,
+      assigned_to ? Number(assigned_to) : null,
+      task?.task_id,
+      NOTIFICATION_TYPES.TASK_ASSIGNED,
+      `You are assigned "${task?.title}"`,
+    );
+
     return res
       .status(200)
       .json({ message: "Task created successfully", data: task });

@@ -102,6 +102,19 @@ export const getTaskByAssignedTo = async (
   }
 };
 
+export const getTaskAssignee = async (task_id: number) => {
+  try {
+    const result = await pool.query(
+      `SELECT assigned_to FROM tasks WHERE task_id = $1`,
+      [task_id],
+    );
+
+    return result.rows;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const createTask = async (
   title: string,
   description: string,
@@ -113,7 +126,7 @@ export const createTask = async (
 ) => {
   try {
     const result = await pool.query(
-      "INSERT INTO tasks(title,description,user_id,workspace_id,assigned_to,priority,due_date) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING*",
+      "INSERT INTO tasks(title,description,user_id,workspace_id,assigned_to,priority,due_date) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *",
       [
         title,
         description,
@@ -124,7 +137,7 @@ export const createTask = async (
         due_date,
       ],
     );
-    return result.rows;
+    return result.rows[0];
   } catch (error) {
     console.log("Error Creating Task Please Try Again.", error);
     throw error;

@@ -2,7 +2,7 @@ import { Check, Sparkles } from "lucide-react";
 
 export function AuthShowcase() {
   return (
-    <section className="relative hidden overflow-hidden bg-linear-to-br from-blue-600 via-indigo-600 to-violet-700 lg:flex lg:flex-col lg:justify-between lg:p-14">
+    <section className="relative hidden overflow-hidden bg-linear-to-br from-blue-600 via-indigo-600 to-violet-700 dark:from-[#0d1224]/90 dark:via-[#03050c]/95 dark:to-[#080c18]/90 dark:border-l dark:border-white/[0.07] dark:backdrop-blur-2xl lg:flex lg:flex-col lg:justify-between lg:p-14">
       {/* floating animation */}
       <style>{`
         @keyframes doable-float {
@@ -24,8 +24,8 @@ export function AuthShowcase() {
             "radial-gradient(ellipse at center, black 30%, transparent 75%)",
         }}
       />
-      <div className="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-cyan-400/30 blur-3xl" />
-      <div className="absolute -bottom-32 -left-20 h-96 w-96 rounded-full bg-fuchsia-500/30 blur-3xl" />
+      <div className="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-cyan-400/30 blur-3xl dark:bg-blue-500/10" />
+      <div className="absolute -bottom-32 -left-20 h-96 w-96 rounded-full bg-fuchsia-500/30 blur-3xl dark:bg-indigo-500/10" />
 
       {/* Headline */}
       <div className="relative z-10 max-w-md">
@@ -46,7 +46,7 @@ export function AuthShowcase() {
 
       {/* Product preview */}
       <div className="relative z-10 my-10 flex justify-center">
-        <div className="w-full max-w-md rounded-2xl border border-white/20 bg-white/10 p-5 shadow-2xl backdrop-blur-xl">
+        <div className="w-full max-w-md rounded-2xl border border-white/20 bg-white/10 dark:border-white/[0.08] dark:bg-white/[0.04] p-5 shadow-2xl backdrop-blur-xl">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wider text-blue-100/80">
@@ -83,34 +83,34 @@ export function AuthShowcase() {
 
         {/* Floating chip: top right */}
         <div
-          className="absolute -right-2 -top-5 flex items-center gap-2.5 rounded-xl bg-white px-3.5 py-2.5 shadow-xl"
+          className="absolute -right-2 -top-5 flex items-center gap-2.5 rounded-xl bg-white dark:bg-[#0c1020] dark:border dark:border-white/[0.08] px-3.5 py-2.5 shadow-xl"
           style={{ animation: "doable-float 5s ease-in-out infinite" }}
         >
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
             <Check className="h-4 w-4" strokeWidth={3} />
           </span>
           <div>
-            <p className="text-sm font-semibold leading-tight text-slate-900">
+            <p className="text-sm font-semibold leading-tight text-slate-900 dark:text-white">
               12 tasks done
             </p>
-            <p className="text-xs text-slate-500">this week</p>
+            <p className="text-xs text-slate-500 dark:text-zinc-400">this week</p>
           </div>
         </div>
 
         {/* Floating chip: bottom left */}
         <div
-          className="absolute -bottom-6 -left-2 flex items-center gap-3 rounded-xl bg-white px-3.5 py-2.5 shadow-xl"
+          className="absolute -bottom-6 -left-2 flex items-center gap-3 rounded-xl bg-white dark:bg-[#0c1020] dark:border dark:border-white/[0.08] px-3.5 py-2.5 shadow-xl"
           style={{ animation: "doable-float 6s ease-in-out 1s infinite" }}
         >
           <div className="flex -space-x-2">
             {["bg-rose-400", "bg-amber-400", "bg-sky-400"].map((c, i) => (
               <span
                 key={i}
-                className={`h-7 w-7 rounded-full border-2 border-white ${c}`}
+                className={`h-7 w-7 rounded-full border-2 border-white dark:border-[#0c1020] ${c}`}
               />
             ))}
           </div>
-          <p className="text-xs font-medium text-slate-600">
+          <p className="text-xs font-medium text-slate-600 dark:text-zinc-300">
             3 teammates online
           </p>
         </div>

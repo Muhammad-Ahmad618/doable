@@ -54,7 +54,7 @@ export function ChartAreaInteractive({
   onTimeRangeChange: (value: string) => void;
 }) {
   return (
-    <Card className="@container/card h-full overflow-visible rounded-xl shadow-[0_1px_2px_rgba(15,23,42,0.06),0_4px_12px_rgba(15,23,42,0.06),0_12px_28px_-8px_rgba(15,23,42,0.10)] dark:shadow-[0_1px_2px_rgba(0,0,0,0.4),0_8px_24px_rgba(0,0,0,0.35)]">
+    <Card className="@container/card h-full overflow-visible rounded-xl border border-border/50 shadow-[0_1px_2px_rgba(15,23,42,0.06),0_4px_12px_rgba(15,23,42,0.06),0_12px_28px_-8px_rgba(15,23,42,0.10)] dark:shadow-[0_1px_2px_rgba(0,0,0,0.4),0_8px_24px_rgba(0,0,0,0.35)]">
       <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0 pb-2">
         <div className="space-y-1">
           <CardTitle className="text-base font-semibold">

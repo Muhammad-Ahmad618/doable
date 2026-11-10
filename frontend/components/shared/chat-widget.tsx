@@ -69,7 +69,7 @@ export function ChatWidget() {
       {/* Chat panel */}
       {open && (
         <div
-          className="fixed bottom-18 right-5 z-50 flex h-135 max-h-[calc(100vh-8rem)] w-95 max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl border border-border/50 bg-card
+          className="fixed bottom-18 right-5 z-50 flex h-135 max-h-[calc(100vh-8rem)] w-95 max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-2xl border border-border/50 bg-card dark:bg-[#0c101d]/95 backdrop-blur-xl
             shadow-[0_1px_2px_rgba(15,23,42,0.06),0_8px_24px_rgba(15,23,42,0.12),0_24px_48px_-12px_rgba(15,23,42,0.18)]
             dark:shadow-[0_1px_2px_rgba(0,0,0,0.4),0_12px_32px_rgba(0,0,0,0.5)]"
         >

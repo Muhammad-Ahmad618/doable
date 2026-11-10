@@ -21,14 +21,15 @@ export const getAllNotifications = async (
      LEFT JOIN tasks t ON t.task_id = n.task_id
      WHERE n.user_id = $1 AND ($2::boolean = false OR n.read_at IS NULL)
      ORDER BY n.created_At DESC
-     LIMIT $3 AND OFFSET $4
+     LIMIT $3 OFFSET $4
     `,
       [user_id, unreadOnly, limit, offset],
     );
 
     const counts = await pool.query(
       `
-      SELECT (*):: int AS total,
+      SELECT 
+      COUNT (*):: int AS total,
       COUNT (*) FILTER (WHERE read_at IS NULL)::int AS unread
       FROM notifications
       WHERE user_id = $1`,
@@ -44,7 +45,7 @@ export const getAllNotifications = async (
 
 export const createNotifications = async (
   user_id: number,
-  task_id: number,
+  task_id: number | null,
   type: string,
   message: string,
 ) => {

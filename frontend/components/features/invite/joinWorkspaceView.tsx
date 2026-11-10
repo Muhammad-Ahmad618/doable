@@ -70,7 +70,7 @@ export function JoinWorkspaceView({
   const gradientClass = getGradient(invite?.workspaceName);
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-between overflow-hidden bg-background px-4 py-8">
+    <main className="relative flex min-h-screen flex-col items-center justify-between overflow-hidden bg-background dark:bg-transparent px-4 py-8">
       {/* Dynamic Background Effects */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute top-0 left-1/2 h-125 w-125 -translate-x-1/2 -translate-y-1/3 rounded-full bg-primary/10 blur-[120px]" />

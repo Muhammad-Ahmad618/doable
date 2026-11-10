@@ -60,7 +60,7 @@ export function SiteHeader() {
     setItems((prev) => prev.map((n) => ({ ...n, unread: false })));
 
   return (
-    <header className="flex h-16 shrink-0 items-center border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 sticky top-0 z-10 px-4 lg:px-6 transition-all">
+    <header className="flex h-16 shrink-0 items-center border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 dark:bg-header dark:supports-backdrop-filter:bg-header sticky top-0 z-10 px-4 lg:px-6 transition-all">
       <div className="flex w-full items-center justify-between gap-4">
         {/* Left Section */}
         <div className="flex items-center gap-2 w-full">
