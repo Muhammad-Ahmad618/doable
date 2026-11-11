@@ -43,7 +43,8 @@ export function InboxFeature() {
       // Category filter
       if (activeTab === "unread" && !item.unread) return false;
       if (activeTab === "tasks" && item.category !== "tasks") return false;
-      if (activeTab === "mentions" && item.category !== "mentions") return false;
+      if (activeTab === "mentions" && item.category !== "mentions")
+        return false;
       if (activeTab === "system" && item.category !== "system") return false;
 
       // Search filter
@@ -73,8 +74,12 @@ export function InboxFeature() {
   const handleSelectAllToggle = () => {
     if (allFilteredSelected) {
       // Deselect current filtered
-      const currentFilteredIds = new Set(filteredNotifications.map((n) => n.id));
-      setSelectedIds((prev) => prev.filter((id) => !currentFilteredIds.has(id)));
+      const currentFilteredIds = new Set(
+        filteredNotifications.map((n) => n.id),
+      );
+      setSelectedIds((prev) =>
+        prev.filter((id) => !currentFilteredIds.has(id)),
+      );
     } else {
       // Select all in current filtered view
       const combined = Array.from(
@@ -94,7 +99,9 @@ export function InboxFeature() {
   const handleBulkMarkAsRead = () => {
     if (selectedIds.length === 0) return;
     setNotifications((prev) =>
-      prev.map((n) => (selectedIds.includes(n.id) ? { ...n, unread: false } : n)),
+      prev.map((n) =>
+        selectedIds.includes(n.id) ? { ...n, unread: false } : n,
+      ),
     );
     toast.success(`${selectedIds.length} notifications marked as read`);
     setSelectedIds([]);
@@ -192,7 +199,7 @@ export function InboxFeature() {
   const emptyState = getEmptyStateDetails();
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-6 ">
       {/* Header */}
       <InboxHeader
         totalCount={counts.all}
@@ -228,7 +235,11 @@ export function InboxFeature() {
           description={emptyState.description}
           icon={emptyState.icon}
           actionLabel={
-            searchQuery ? "Clear Search" : activeTab !== "all" ? "View All Notifications" : undefined
+            searchQuery
+              ? "Clear Search"
+              : activeTab !== "all"
+                ? "View All Notifications"
+                : undefined
           }
           onAction={
             searchQuery
@@ -267,4 +278,3 @@ export function InboxFeature() {
 }
 
 export default InboxFeature;
-
