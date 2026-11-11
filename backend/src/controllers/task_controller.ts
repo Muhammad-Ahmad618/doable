@@ -25,8 +25,9 @@ import {
   updateSubtaskStatus,
   deleteAllSubtasks,
   getMyDeletedTasks,
+  getTaskAssignee,
 } from "@/models/tasks_model.js";
-import { notifyUser } from "@/utils/notify_user.js";
+import { notifyTaskParticipants, notifyUser } from "@/utils/notify_user.js";
 import { NOTIFICATION_TYPES } from "@/constants/notifications.js";
 
 // Fetch All Tasks Accross DB
@@ -179,6 +180,8 @@ export const updateTaskDetails = async (req: Request, res: Response) => {
   }
 
   try {
+    const oldAssignee = await getTaskAssignee(id);
+
     const task = await updateTask(
       id,
       user_id,
@@ -189,6 +192,27 @@ export const updateTaskDetails = async (req: Request, res: Response) => {
       due_date,
       assigned_to,
     );
+
+    const newAssignee = assigned_to ? Number(assigned_to) : null;
+
+    if (newAssignee && newAssignee !== oldAssignee) {
+      await notifyUser(
+        user_id,
+        newAssignee,
+        id,
+        NOTIFICATION_TYPES.TASK_UPDATED,
+        `You were Assigend ${task?.title}`,
+      );
+    } else if (newAssignee) {
+      await notifyUser(
+        user_id,
+        newAssignee,
+        id,
+        NOTIFICATION_TYPES.TASK_UPDATED,
+        `${task?.title} was updated`,
+      );
+    }
+
     return res
       .status(200)
       .json({ message: "Task updated successfully", data: task });
@@ -222,6 +246,14 @@ export const updateTaskStatus = async (req: Request, res: Response) => {
 
   try {
     const task = await changeTaskStatus(task_id, user_id, status);
+
+    await notifyTaskParticipants(
+      user_id,
+      task,
+      NOTIFICATION_TYPES.TASK_STATUS_CHANGED,
+      `${task.title} status changed to ${status}`,
+    );
+
     return res
       .status(200)
       .json({ message: "Task status changed successfully", data: task });
@@ -251,6 +283,13 @@ export const updateTaskPriority = async (req: Request, res: Response) => {
 
   try {
     const response = await updatePriority(task_id, user_id, priority);
+
+    await notifyTaskParticipants(
+      user_id,
+      response,
+      NOTIFICATION_TYPES.TASK_PRIORITY_CHANGED,
+      `"${response.title}" priority updated to ${priority}`,
+    );
 
     return res.status(200).json({
       message: "Task priority updated successfully",
@@ -294,6 +333,13 @@ export const updateTaskDueDate = async (req: Request, res: Response) => {
     }
 
     const result = await updateDueDate(task_id, user_id, due_date);
+
+    await notifyTaskParticipants(
+      user_id,
+      result,
+      NOTIFICATION_TYPES.TASK_DUE_DATE_CHANGED,
+      `"${result.title}" due date changed to ${due_date}`,
+    );
 
     return res.status(200).json({
       message: "Due Date Updated Successfully",
@@ -356,6 +402,14 @@ export const removeTask = async (req: Request, res: Response) => {
     }
 
     const result = await softDeleteTask(task_id);
+
+    await notifyTaskParticipants(
+      user_id,
+      result,
+      NOTIFICATION_TYPES.TASK_DELETED,
+      `"${result.title}" deleted successfully`,
+    );
+
     return res
       .status(200)
       .json({ message: "Task deleted successfully", data: result });
@@ -413,6 +467,14 @@ export const recoverTask = async (req: Request, res: Response) => {
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }
+
+    await notifyTaskParticipants(
+      user_id,
+      task,
+      NOTIFICATION_TYPES.TASK_RECOVERED,
+      `${task?.title} Recovered Successfully`,
+    );
+
     return res
       .status(200)
       .json({ message: "Task restored successfully", data: task });

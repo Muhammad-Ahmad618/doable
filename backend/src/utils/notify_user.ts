@@ -15,3 +15,22 @@ export const notifyUser = async (
     console.error("notify User failed", error);
   }
 };
+
+export const notifyTaskParticipants = async (
+  actorId: number,
+  task: {
+    task_id: number;
+    assigned_to: number | null;
+    created_by: number | null;
+  },
+  type: string,
+  message: string,
+) => {
+  const recipients = new Set(
+    [task.assigned_to, task.created_by].filter(Boolean).map(Number),
+  );
+
+  for (const userId of recipients) {
+    await notifyUser(actorId, userId, task.task_id, type, message);
+  }
+};

@@ -109,7 +109,7 @@ export const getTaskAssignee = async (task_id: number) => {
       [task_id],
     );
 
-    return result.rows;
+    return result.rows[0];
   } catch (error) {
     throw error;
   }
@@ -168,7 +168,7 @@ export const updateTask = async (
         user_id,
       ],
     );
-    return result.rows;
+    return result.rows[0];
   } catch (error) {
     console.log("Error Updating Task Please Try Again.", error);
     throw error;
@@ -194,7 +194,7 @@ export const softDeleteTask = async (id: number) => {
       "UPDATE tasks SET deleted_at = NOW() WHERE task_id = $1 RETURNING*",
       [id],
     );
-    return result.rows;
+    return result.rows[0];
   } catch (error) {
     console.log("Error Soft Deleting Task Please Try Again.", error);
     throw error;
@@ -234,7 +234,7 @@ export const restoreTask = async (id: number) => {
       "UPDATE tasks SET deleted_at = NULL WHERE task_id = $1 RETURNING*",
       [id],
     );
-    return result.rows;
+    return result.rows[0];
   } catch (error) {
     console.log("Error Restoring Task Please Try Again.", error);
     throw error;
@@ -251,7 +251,7 @@ export const changeTaskStatus = async (
       "UPDATE tasks SET status = $1 WHERE task_id = $2 AND user_id = $3 RETURNING*",
       [status, id, user_id],
     );
-    return result.rows;
+    return result.rows[0];
   } catch (error) {
     console.log("Error Changing Task Status Please Try Again.", error);
     throw error;
@@ -346,7 +346,7 @@ export const updateDueDate = async (
     RETURNING *`,
       [task_id, user_id, due_date],
     );
-    return result.rows;
+    return result.rows[0];
   } catch (error) {
     console.log("Error updating due_date", error);
     throw error;
@@ -366,7 +366,7 @@ export const updatePriority = async (
     RETURNING *`,
       [task_id, user_id, priority],
     );
-    return result.rows;
+    return result.rows[0];
   } catch (error) {
     console.log("Error updating priority", error);
     throw error;
