@@ -136,38 +136,44 @@ export const removeAllNotifications = async (user_id: number) => {
   }
 };
 
+const TODAY = `(NOW() AT TIME ZONE 'Asia/Karachi')::date`;
+
 export const createDueSoonNotifications = async () => {
   await pool.query(`
-    INSERT INTO notifications (user_id, task_id, type, message)
+   INSERT INTO notifications (user_id, task_id, type, message)
     SELECT COALESCE(t.assigned_to, t.created_by), t.task_id, 'task_due_soon',
-           '"' || t.title || '" is due within 24 hours'
+           CASE
+             WHEN t.due_date::date = ${TODAY}
+               THEN '"' || t.title || '" is due today'
+             ELSE '"' || t.title || '" is due tomorrow'
+           END
     FROM tasks t
     WHERE t.status != 'completed'
       AND t.deleted_at IS NULL
-      AND t.due_date > NOW()
-      AND t.due_date <= NOW() + INTERVAL '1 day'
+      AND t.due_date::date BETWEEN ${TODAY} AND ${TODAY} + 1
       AND NOT EXISTS (
         SELECT 1 FROM notifications n
         WHERE n.task_id = t.task_id
           AND n.type = 'task_due_soon'
-          AND n.created_at >= t.due_date - INTERVAL '1 day'
+          AND n.created_at >= t.due_date::date - 1
       )
   `);
 };
 
 export const createOverNotifications = async () => {
-  await pool.query(` INSERT INTO notifications (user_id, task_id, type, message)
+  await pool.query(`
+    INSERT INTO notifications (user_id, task_id, type, message)
     SELECT COALESCE(t.assigned_to, t.created_by), t.task_id, 'task_overdue',
            '"' || t.title || '" is overdue'
     FROM tasks t
     WHERE t.status != 'completed'
       AND t.deleted_at IS NULL
-      AND t.due_date < NOW()
+      AND t.due_date::date < ${TODAY}
       AND NOT EXISTS (
         SELECT 1 FROM notifications n
         WHERE n.task_id = t.task_id
           AND n.type = 'task_overdue'
-          AND n.created_at >= t.due_date
+          AND n.created_at >= t.due_date::date
       )
   `);
 };

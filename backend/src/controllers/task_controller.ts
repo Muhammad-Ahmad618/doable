@@ -111,7 +111,8 @@ export const AddNewTask = async (req: Request, res: Response) => {
   const { title, description, workspace_id, assigned_to, priority, due_date } =
     req.body;
   const user_id = Number(req.user?.id);
-  const current_date = new Date();
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
   const dueDate = new Date(due_date);
 
   if (!title || !description || !priority || !due_date) {
@@ -124,7 +125,7 @@ export const AddNewTask = async (req: Request, res: Response) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  if (dueDate < current_date) {
+  if (dueDate < startOfToday) {
     return res.status(400).json({ message: "Due date cannot be in the past" });
   }
 
@@ -162,6 +163,9 @@ export const updateTaskDetails = async (req: Request, res: Response) => {
     req.body;
   const id = Number(req.params.id);
   const user_id = Number(req.user?.id);
+  const dueDate = new Date(due_date);
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
 
   if (!title || !description || !status || !priority || !due_date) {
     return res.status(400).json({
@@ -177,6 +181,10 @@ export const updateTaskDetails = async (req: Request, res: Response) => {
 
   if (!user_id) {
     return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  if (dueDate < startOfToday) {
+    return res.status(400).json({ message: "Due Date Cannot Be In The Past" });
   }
 
   try {
@@ -306,19 +314,22 @@ export const updateTaskDueDate = async (req: Request, res: Response) => {
   const task_id = Number(req.params?.id);
   const user_id = Number(req.user?.id);
   const { due_date } = req.body;
+  const dueDate = new Date(due_date);
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
 
-  if (!user_id) {
+  if (isNaN(user_id)) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  if (!task_id) {
+  if (isNaN(task_id)) {
     return res
       .status(401)
       .json({ message: "Task Id Not found Opearting Failed" });
   }
 
-  if (!due_date) {
-    return res.status(401).json({ message: "Due Date Not Found" });
+  if (dueDate < startOfToday) {
+    return res.status(400).json({ message: "Due Date cannot be in the past" });
   }
 
   try {
