@@ -11,11 +11,11 @@ import {
 
 const router = express.Router();
 
+router.post("/jobs/notifications", EventBasedNotification);
 router.get("/notifications", protect, fetchAllNotifications);
 router.put("/notifications/mark-read", protect, markNotificationRead);
 router.put("/notifications/mark-all-read", protect, markAllRead);
 router.delete("/notifications/clear", protect, deleteNotification);
 router.delete("/notifications/clear-all", protect, clearAllNotifications);
-router.post("/jobs/notifications", EventBasedNotification);
 
 export default router;
