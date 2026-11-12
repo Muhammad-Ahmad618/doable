@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -11,53 +10,43 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { NavUser } from "../custom/nav-user";
-import { SearchInput } from "./search-input";
 import { Bell, CheckCheck, Circle, Moon, Sun } from "lucide-react";
 import { useGetCurrentUser } from "@/hooks/user/settings";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import Link from "next/link";
+import {
+  useFetchAllNotifications,
+  useMarkAllRead,
+  useMarkAsRead,
+} from "@/hooks/notifications";
 
-type Notification = {
-  id: string;
-  title: string;
-  description: string;
-  time: string;
-  unread: boolean;
-};
-
-const notifications: Notification[] = [
-  {
-    id: "1",
-    title: "Cloud Infrastructure Audit is 2 days overdue",
-    description: "Risk score jumped to 92%. James Smith is assigned.",
-    time: "10m ago",
-    unread: true,
-  },
-  {
-    id: "2",
-    title: "3 tasks unlocked for Engineering",
-    description: "Completing your audit will unblock dependent work.",
-    time: "1h ago",
-    unread: true,
-  },
-  {
-    id: "3",
-    title: "Weekly summary ready",
-    description: "20 tasks completed, 14 in progress this week.",
-    time: "Yesterday",
-    unread: false,
-  },
-];
+function formatRelativeTime(date: Date | string): string {
+  const now = Date.now();
+  const diff = now - new Date(date).getTime();
+  const mins = Math.floor(diff / 60_000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days === 1) return "Yesterday";
+  return `${days} days ago`;
+}
 
 export function SiteHeader() {
-  const [items, setItems] = useState(notifications);
-  const unreadCount = items.filter((n) => n.unread).length;
-  const { data: user, isLoading } = useGetCurrentUser();
+  const [isNotificationOpen, setNotificatioOpen] = useState(false);
+
+  const { data: notificationsData } = useFetchAllNotifications();
+  const { mutate: markAllReadMutate } = useMarkAllRead();
+  const { mutate: markAsReadMutate } = useMarkAsRead();
+  const { data: user } = useGetCurrentUser();
   const { resolvedTheme, setTheme } = useTheme();
 
-  const markAllRead = () =>
-    setItems((prev) => prev.map((n) => ({ ...n, unread: false })));
+  const items = notificationsData?.data?.Notification ?? [];
+  const unreadCount = notificationsData?.data?.unread ?? 0;
+
+  const markAllRead = () => markAllReadMutate();
 
   return (
     <header className="flex h-16 shrink-0 items-center border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 dark:bg-header dark:supports-backdrop-filter:bg-header sticky top-0 z-10 px-4 lg:px-6 transition-all">
@@ -73,7 +62,9 @@ export function SiteHeader() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+            onClick={() =>
+              setTheme(resolvedTheme === "dark" ? "light" : "dark")
+            }
             className="cursor-pointer group relative h-10 w-10 rounded-full border border-blue-400/20 bg-linear-to-br from-blue-400/15 via-blue-500/10 to-indigo-500/20 text-blue-600 shadow-[0_2px_12px_rgba(59,130,246,0.12)] backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:border-blue-400/40 hover:from-blue-400/25 hover:via-blue-500/20 hover:to-indigo-500/30 hover:text-blue-700 hover:shadow-[0_4px_20px_rgba(59,130,246,0.25)] active:scale-95 dark:from-blue-400/20 dark:via-blue-500/15 dark:to-indigo-500/25 dark:text-blue-300 dark:hover:text-blue-200"
             aria-label="Toggle theme"
           >
@@ -89,7 +80,10 @@ export function SiteHeader() {
             />
           </Button>
 
-          <DropdownMenu>
+          <DropdownMenu
+            open={isNotificationOpen}
+            onOpenChange={setNotificatioOpen}
+          >
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
@@ -129,10 +123,10 @@ export function SiteHeader() {
             <DropdownMenuContent
               align="end"
               sideOffset={12}
-              className="z-50 w-90 overflow-hidden rounded-2xl border border-white/50 bg-white/85 p-0 shadow-[0_12px_50px_rgba(0,0,0,0.12),0_2px_8px_rgba(59,130,246,0.08)] backdrop-blur-2xl backdrop-saturate-150 dark:border-white/10 dark:bg-zinc-900/85 dark:shadow-[0_12px_50px_rgba(0,0,0,0.45)]"
+              className="z-50 flex w-[22rem] flex-col rounded-2xl border border-white/50 bg-white/85 p-0 shadow-[0_12px_50px_rgba(0,0,0,0.12),0_2px_8px_rgba(59,130,246,0.08)] backdrop-blur-2xl backdrop-saturate-150 dark:border-white/10 dark:bg-zinc-900/85 dark:shadow-[0_12px_50px_rgba(0,0,0,0.45)]"
             >
               {/* Header */}
-              <div className="relative flex items-center justify-between border-b border-zinc-200/60 bg-linear-to-r from-blue-50/70 via-white/40 to-indigo-50/70 px-5 py-4 dark:border-white/10 dark:from-blue-500/10 dark:via-zinc-900/40 dark:to-indigo-500/10">
+              <div className="relative flex shrink-0 items-center justify-between border-b border-zinc-200/60 bg-linear-to-r from-blue-50/70 via-white/40 to-indigo-50/70 px-5 py-4 dark:border-white/10 dark:from-blue-500/10 dark:via-zinc-900/40 dark:to-indigo-500/10">
                 <div>
                   <h3 className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-white">
                     Notifications
@@ -154,7 +148,7 @@ export function SiteHeader() {
               </div>
 
               {/* Notifications list */}
-              <ScrollArea className="max-h-80">
+              <ScrollArea className="h-80">
                 {items.length === 0 ? (
                   <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
                     <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full border border-blue-500/15 bg-linear-to-br from-blue-400/15 to-indigo-500/15 text-blue-500">
@@ -169,60 +163,70 @@ export function SiteHeader() {
                   </div>
                 ) : (
                   <div className="p-2">
-                    {items.map((n) => (
-                      <div
-                        key={n.id}
-                        className={cn(
-                          "group flex cursor-pointer gap-3 rounded-xl px-3 py-3 transition-all duration-200 hover:bg-blue-50/70 dark:hover:bg-white/6",
-                          n.unread && "bg-blue-50/40 dark:bg-blue-500/6",
-                        )}
-                      >
-                        <div className="shrink-0 pt-1.5">
-                          <Circle
-                            size={8}
-                            className={cn(
-                              "fill-current",
-                              n.unread ? "text-blue-500" : "text-transparent",
+                    {items.map((n) => {
+                      const isUnread = !n.read_at;
+                      return (
+                        <div
+                          key={n.id}
+                          onClick={() => {
+                            if (isUnread) markAsReadMutate(n.id);
+                          }}
+                          className={cn(
+                            "group flex cursor-pointer gap-3 rounded-xl px-3 py-3 transition-all duration-200 hover:bg-blue-50/70 dark:hover:bg-white/6",
+                            isUnread && "bg-blue-50/40 dark:bg-blue-500/6",
+                          )}
+                        >
+                          <div className="shrink-0 pt-1.5">
+                            <Circle
+                              size={8}
+                              className={cn(
+                                "fill-current",
+                                isUnread ? "text-blue-500" : "text-transparent",
+                              )}
+                            />
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <p
+                              className={cn(
+                                "line-clamp-2 text-sm leading-snug",
+                                isUnread
+                                  ? "font-semibold text-zinc-900 dark:text-zinc-100"
+                                  : "font-medium text-zinc-600 dark:text-zinc-300",
+                              )}
+                            >
+                              {n.message}
+                            </p>
+
+                            {n.task_title && (
+                              <p className="mt-1 line-clamp-1 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
+                                {n.task_title}
+                              </p>
                             )}
-                          />
+
+                            <p className="mt-1.5 text-[10px] font-medium text-zinc-400 dark:text-zinc-500">
+                              {formatRelativeTime(n.created_at)}
+                            </p>
+                          </div>
+
+                          {isUnread && (
+                            <div className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                          )}
                         </div>
-
-                        <div className="min-w-0 flex-1">
-                          <p
-                            className={cn(
-                              "truncate text-sm leading-snug",
-                              n.unread
-                                ? "font-semibold text-zinc-900 dark:text-zinc-100"
-                                : "font-medium text-zinc-600 dark:text-zinc-300",
-                            )}
-                          >
-                            {n.title}
-                          </p>
-
-                          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
-                            {n.description}
-                          </p>
-
-                          <p className="mt-1.5 text-[10px] font-medium text-zinc-400 dark:text-zinc-500">
-                            {n.time}
-                          </p>
-                        </div>
-
-                        {n.unread && (
-                          <div className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </ScrollArea>
 
               {/* Footer */}
-              <div className="border-t border-zinc-200/60 bg-zinc-50/50 p-2 dark:border-white/10 dark:bg-white/2">
-                <Link href="/inbox">
-                  <button className="w-full rounded-xl py-2.5 text-xs font-semibold text-blue-600 transition-colors hover:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/10 cursor-pointer">
-                    View all notifications
-                  </button>
+              <div className="shrink-0 border-t border-zinc-200/60 bg-zinc-50/50 p-2 dark:border-white/10 dark:bg-white/2">
+                <Link
+                  href="/inbox"
+                  onClick={() => setNotificatioOpen(false)}
+                  className="block w-full rounded-xl py-2.5 text-center text-xs font-semibold text-blue-600 transition-colors hover:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/10"
+                >
+                  View all notifications
                 </Link>
               </div>
             </DropdownMenuContent>

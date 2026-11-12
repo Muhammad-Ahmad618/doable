@@ -24,8 +24,8 @@ export function AuthShowcase() {
             "radial-gradient(ellipse at center, black 30%, transparent 75%)",
         }}
       />
-      <div className="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-cyan-400/30 blur-3xl dark:bg-blue-500/10" />
-      <div className="absolute -bottom-32 -left-20 h-96 w-96 rounded-full bg-fuchsia-500/30 blur-3xl dark:bg-indigo-500/10" />
+      <div className="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-cyan-400/30 blur-3xl" />
+      <div className="absolute -bottom-32 -left-20 h-96 w-96 rounded-full bg-fuchsia-500/30 blur-3xl " />
 
       {/* Headline */}
       <div className="relative z-10 max-w-md">
@@ -93,7 +93,9 @@ export function AuthShowcase() {
             <p className="text-sm font-semibold leading-tight text-slate-900 dark:text-white">
               12 tasks done
             </p>
-            <p className="text-xs text-slate-500 dark:text-zinc-400">this week</p>
+            <p className="text-xs text-slate-500 dark:text-zinc-400">
+              this week
+            </p>
           </div>
         </div>
 

@@ -75,7 +75,7 @@ export const updateNotificationRead = async (
             UPDATE notifications
             SET read_at = COALESCE(read_at, NOW())
             WHERE id = $1 AND user_id = $2
-            RETURNING 1
+            RETURNING id;
             `,
       [notification_id, user_id],
     );
@@ -100,6 +100,38 @@ export const updateAllNotificationsRead = async (user_id: Number) => {
     return result.rows;
   } catch (error) {
     console.error("Error marking all notifications read:", error);
+    throw error;
+  }
+};
+
+export const removeNotification = async (id: number, user_id: number) => {
+  try {
+    const result = await pool.query(
+      `DELETE FROM notifications
+      WHERE id = $1 and user_id = $2
+      RETURNING *
+      `,
+      [id, user_id],
+    );
+
+    return result.rows[0];
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const removeAllNotifications = async (user_id: number) => {
+  try {
+    const result = await pool.query(
+      `
+    DELETE FROM notifications
+    WHERE user_id = $1   
+      `,
+      [user_id],
+    );
+
+    return result.rows[0];
+  } catch (error) {
     throw error;
   }
 };

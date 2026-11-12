@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import {
   createNotifications,
   getAllNotifications,
+  removeAllNotifications,
+  removeNotification,
   updateAllNotificationsRead,
   updateNotificationRead,
 } from "@/models/notification_model.js";
@@ -90,5 +92,56 @@ export const markAllRead = async (req: Request, res: Response) => {
     return res
       .status(500)
       .json({ message: "Error marking all notifications read" });
+  }
+};
+
+export const deleteNotification = async (req: Request, res: Response) => {
+  const user_id = Number(req.user?.id);
+  const { notification_id } = req.body;
+
+  if (isNaN(user_id)) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  if (isNaN(notification_id)) {
+    return res.status(400).json({ message: "Notification ID is required" });
+  }
+
+  try {
+    const response = await removeNotification(notification_id, user_id);
+
+    if (!response) {
+      return res.status(404).json({ message: "Notification not found" });
+    }
+
+    return res.status(200).json({
+      message: "Notification removed successfully",
+      data: response,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error removing notification, Please try again" });
+  }
+};
+
+export const clearAllNotifications = async (req: Request, res: Response) => {
+  const user_id = Number(req.user?.id);
+
+  if (isNaN(user_id)) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  try {
+    const response = await removeAllNotifications(user_id);
+
+    return res.status(200).json({
+      message: "All notifications removed successfully",
+      data: response,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error removing all notifications", error });
   }
 };

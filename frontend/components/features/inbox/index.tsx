@@ -6,14 +6,77 @@ import { InboxFilters } from "./filters";
 import { NotificationCard } from "./notification-card";
 import { DeleteInboxDialog } from "./delete-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
-import { MOCK_NOTIFICATIONS } from "./mock-data";
-import { InboxNotification, NotificationCategory } from "@/types/inbox";
+import {
+  InboxNotification,
+  NotificationCategory,
+  NotificationType,
+} from "@/types/inbox";
 import { BellOff, CheckCheck, Inbox } from "lucide-react";
 import { toast } from "sonner";
+import {
+  useClearAllNotifications,
+  useDeleteNotification,
+  useFetchAllNotifications,
+  useMarkAllRead,
+  useMarkAsRead,
+} from "@/hooks/notifications";
+import { NotificationItem } from "@/types/notifications";
+
+function formatRelativeTime(date: Date | string): string {
+  const now = Date.now();
+  const diff = now - new Date(date).getTime();
+  const mins = Math.floor(diff / 60_000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days === 1) return "Yesterday";
+  return `${days} days ago`;
+}
+
+function mapNotificationType(type: string): NotificationType {
+  if (type.includes("mention")) return "mention";
+  if (type.includes("assign")) return "assignment";
+  if (type.includes("complet") || type.includes("done")) return "completion";
+  if (
+    type.includes("alert") ||
+    type.includes("overdue") ||
+    type.includes("due")
+  )
+    return "alert";
+  return "system";
+}
+
+function mapToInboxNotification(n: NotificationItem): InboxNotification {
+  const type = mapNotificationType(n.type);
+  const category =
+    type === "mention" ? "mentions" : type === "system" ? "system" : "tasks";
+
+  return {
+    id: String(n.id),
+    title: n.message,
+    description: n.task_title ?? "",
+    timestamp: formatRelativeTime(n.created_at),
+    unread: !n.read_at,
+    type,
+    category,
+  };
+}
 
 export function InboxFeature() {
-  const [notifications, setNotifications] =
-    useState<InboxNotification[]>(MOCK_NOTIFICATIONS);
+  const { data: notificationsData, isLoading } = useFetchAllNotifications();
+  const { mutate: markAllReadMutate } = useMarkAllRead();
+  const { mutate: markAsReadMutate } = useMarkAsRead();
+  const { mutate: deleteNotificationMutate } = useDeleteNotification();
+  const { mutate: clearAllNotificationsMutate } = useClearAllNotifications();
+
+  const notifications: InboxNotification[] = useMemo(() => {
+    return (notificationsData?.data?.Notification ?? []).map(
+      mapToInboxNotification,
+    );
+  }, [notificationsData]);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<NotificationCategory>("all");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -73,7 +136,6 @@ export function InboxFeature() {
 
   const handleSelectAllToggle = () => {
     if (allFilteredSelected) {
-      // Deselect current filtered
       const currentFilteredIds = new Set(
         filteredNotifications.map((n) => n.id),
       );
@@ -81,7 +143,6 @@ export function InboxFeature() {
         prev.filter((id) => !currentFilteredIds.has(id)),
       );
     } else {
-      // Select all in current filtered view
       const combined = Array.from(
         new Set([...selectedIds, ...filteredNotifications.map((n) => n.id)]),
       );
@@ -91,38 +152,33 @@ export function InboxFeature() {
 
   // Mark all as read
   const handleMarkAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
-    toast.success("All notifications marked as read");
+    markAllReadMutate(undefined, {
+      onSuccess: () => toast.success("All notifications marked as read"),
+    });
   };
 
-  // Bulk mark as read
+  // Bulk mark as read — mark each selected unread notification
   const handleBulkMarkAsRead = () => {
     if (selectedIds.length === 0) return;
-    setNotifications((prev) =>
-      prev.map((n) =>
-        selectedIds.includes(n.id) ? { ...n, unread: false } : n,
-      ),
+    const unreadSelected = notifications.filter(
+      (n) => selectedIds.includes(n.id) && n.unread,
     );
+    unreadSelected.forEach((n) => markAsReadMutate(Number(n.id)));
     toast.success(`${selectedIds.length} notifications marked as read`);
     setSelectedIds([]);
   };
 
-  // Toggle single read/unread status
+  // Toggle single read/unread status (only mark-as-read is supported by API)
   const handleToggleRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => {
-        if (n.id === id) {
-          const newStatus = !n.unread;
-          if (newStatus) {
-            toast.info("Marked as unread");
-          } else {
-            toast.success("Marked as read");
-          }
-          return { ...n, unread: newStatus };
-        }
-        return n;
-      }),
-    );
+    const notification = notifications.find((n) => n.id === id);
+    if (!notification) return;
+    if (notification.unread) {
+      markAsReadMutate(Number(id), {
+        onSuccess: () => toast.success("Marked as read"),
+      });
+    } else {
+      toast.info("Already read");
+    }
   };
 
   // Delete handlers
@@ -145,19 +201,27 @@ export function InboxFeature() {
 
   const handleConfirmDelete = () => {
     if (deleteTarget.isAll) {
-      setNotifications([]);
-      setSelectedIds([]);
-      toast.success("All notifications cleared");
+      clearAllNotificationsMutate(undefined, {
+        onSuccess: () => {
+          setSelectedIds([]);
+          toast.success("All notifications cleared");
+        },
+      });
     } else if (deleteTarget.bulk && deleteTarget.bulk.length > 0) {
-      const idsToDelete = new Set(deleteTarget.bulk);
-      setNotifications((prev) => prev.filter((n) => !idsToDelete.has(n.id)));
-      setSelectedIds((prev) => prev.filter((id) => !idsToDelete.has(id)));
-      toast.success(`${deleteTarget.bulk.length} notifications deleted`);
+      const idsToDelete = deleteTarget.bulk;
+      idsToDelete.forEach((id) => {
+        deleteNotificationMutate(Number(id));
+      });
+      setSelectedIds((prev) => prev.filter((id) => !idsToDelete.includes(id)));
+      toast.success(`${idsToDelete.length} notifications deleted`);
     } else if (deleteTarget.single) {
       const targetId = deleteTarget.single.id;
-      setNotifications((prev) => prev.filter((n) => n.id !== targetId));
-      setSelectedIds((prev) => prev.filter((id) => id !== targetId));
-      toast.success("Notification deleted");
+      deleteNotificationMutate(Number(targetId), {
+        onSuccess: () => {
+          setSelectedIds((prev) => prev.filter((id) => id !== targetId));
+          toast.success("Notification deleted");
+        },
+      });
     }
 
     setOpenDeleteDialog(false);
@@ -166,6 +230,13 @@ export function InboxFeature() {
 
   // Empty state title and message helper
   const getEmptyStateDetails = () => {
+    if (isLoading) {
+      return {
+        title: "Loading notifications...",
+        description: "Please wait while we fetch your notifications.",
+        icon: Inbox,
+      };
+    }
     if (searchQuery.trim()) {
       return {
         title: "No notifications found",

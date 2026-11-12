@@ -1,5 +1,6 @@
 import pool from "@/db.js";
 import { task } from "@/Types/tasks.js";
+import { Result } from "pg";
 
 export const getDashboardStats = async (userId: number) => {
   try {
