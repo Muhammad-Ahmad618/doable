@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import {
+  createDueNotifications,
   createNotifications,
   getAllNotifications,
   removeAllNotifications,
@@ -143,5 +144,18 @@ export const clearAllNotifications = async (req: Request, res: Response) => {
     return res
       .status(500)
       .json({ message: "Error removing all notifications", error });
+  }
+};
+
+export const EventBasedNotification = async (req: Request, res: Response) => {
+  if (req?.headers["x-cron-secret"] !== process.env.CRON_SECRET) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  try {
+    await createDueNotifications();
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Job failed" });
   }
 };
