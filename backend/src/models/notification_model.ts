@@ -141,7 +141,7 @@ const TODAY = `(NOW() AT TIME ZONE 'Asia/Karachi')::date`;
 export const createDueSoonNotifications = async () => {
   await pool.query(`
    INSERT INTO notifications (user_id, task_id, type, message)
-    SELECT COALESCE(t.assigned_to, t.created_by), t.task_id, 'task_due_soon',
+    SELECT COALESCE(t.assigned_to, t.user_id), t.task_id, 'task_due_soon',
            CASE
              WHEN t.due_date::date = ${TODAY}
                THEN '"' || t.title || '" is due today'
@@ -163,7 +163,7 @@ export const createDueSoonNotifications = async () => {
 export const createOverNotifications = async () => {
   await pool.query(`
     INSERT INTO notifications (user_id, task_id, type, message)
-    SELECT COALESCE(t.assigned_to, t.created_by), t.task_id, 'task_overdue',
+    SELECT COALESCE(t.assigned_to, t.user_id), t.task_id, 'task_overdue',
            '"' || t.title || '" is overdue'
     FROM tasks t
     WHERE t.status != 'completed'
