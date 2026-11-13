@@ -20,6 +20,7 @@ import {
   useMarkAllRead,
   useMarkAsRead,
 } from "@/hooks/notifications";
+import { useNotificationSocket } from "@/hooks/notificationSocket";
 
 function formatRelativeTime(date: Date | string): string {
   const now = Date.now();
@@ -36,7 +37,7 @@ function formatRelativeTime(date: Date | string): string {
 
 export function SiteHeader() {
   const [isNotificationOpen, setNotificatioOpen] = useState(false);
-
+  useNotificationSocket();
   const { data: notificationsData } = useFetchAllNotifications();
   const { mutate: markAllReadMutate } = useMarkAllRead();
   const { mutate: markAsReadMutate } = useMarkAsRead();

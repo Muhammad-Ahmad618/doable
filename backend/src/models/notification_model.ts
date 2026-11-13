@@ -1,4 +1,5 @@
 import pool from "@/db.js";
+import { emitToUser } from "@/socket.js";
 
 export const getAllNotifications = async (
   user_id: Number,
@@ -59,7 +60,10 @@ export const createNotifications = async (
       [user_id, task_id, type, message],
     );
 
-    return result.rows[0];
+    const notification = result.rows[0];
+    emitToUser(user_id, "notification:new", notification);
+
+    return notification;
   } catch (error) {
     throw error;
   }
@@ -139,7 +143,7 @@ export const removeAllNotifications = async (user_id: number) => {
 const TODAY = `(NOW() AT TIME ZONE 'Asia/Karachi')::date`;
 
 export const createDueSoonNotifications = async () => {
-  await pool.query(`
+  const { rows } = await pool.query(`
    INSERT INTO notifications (user_id, task_id, type, message)
     SELECT COALESCE(t.assigned_to, t.user_id), t.task_id, 'task_due_soon',
            CASE
@@ -156,12 +160,15 @@ export const createDueSoonNotifications = async () => {
         WHERE n.task_id = t.task_id
           AND n.type = 'task_due_soon'
           AND n.created_at >= t.due_date::date - 1
+        RETRUNING n.id, n.user_id, n.type, n.message, n.created_at,n,read_at  
       )
   `);
+
+  rows.forEach((n) => emitToUser(n.user_id, "notification:new", n));
 };
 
 export const createOverNotifications = async () => {
-  await pool.query(`
+  const { rows } = await pool.query(`
     INSERT INTO notifications (user_id, task_id, type, message)
     SELECT COALESCE(t.assigned_to, t.user_id), t.task_id, 'task_overdue',
            '"' || t.title || '" is overdue'
@@ -174,8 +181,10 @@ export const createOverNotifications = async () => {
         WHERE n.task_id = t.task_id
           AND n.type = 'task_overdue'
           AND n.created_at >= t.due_date::date
+        RETURNING n.id,n.user_id,n.message,n.type,n.created_at,n.read_at
       )
   `);
+  rows.forEach((n) => emitToUser(n.user_id, "notification:new", n));
 };
 
 export const createDueNotifications = async () => {

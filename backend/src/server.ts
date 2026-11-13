@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import http from "http";
+import { initSocket } from "./socket.js";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
@@ -16,6 +18,8 @@ import dotenv from "dotenv";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8000;
+const server = http.createServer(app);
+initSocket(server);
 
 const allowedOrigins = ["http://localhost:3000", process.env.FRONTEND_URL];
 
@@ -45,6 +49,6 @@ app.use("/api/v1", PersonalDashBoardRoutes);
 app.use("/api/v1", feedbackRoutes);
 app.use("/api/v1", chatRoute);
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
