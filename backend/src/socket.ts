@@ -25,7 +25,7 @@ export function initSocket(HttpServer: HttpServer) {
 
   io.use((socket, next) => {
     try {
-      const token = getCookie(socket.handshake.headers.cookie, "token");
+      const token = getCookie(socket.handshake.headers.cookie, "accessToken");
 
       if (!token) return next(new Error("Unauthorized"));
 
@@ -39,7 +39,7 @@ export function initSocket(HttpServer: HttpServer) {
     }
   });
   io.on("connection", (socket) => {
-    socket.join(`user: ${socket.data.userId}`);
+    socket.join(`user:${socket.data.userId}`);
   });
 }
 
