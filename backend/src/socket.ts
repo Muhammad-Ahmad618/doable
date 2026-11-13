@@ -14,7 +14,7 @@ function getCookie(header: string | undefined, name: string) {
 let io: Server | undefined;
 
 const allowedOrigins = [
-  process.env.CLIENT_URL, // your Vercel URL
+  process.env.FRONTEND_URL, // your Vercel URL
   "http://localhost:3000", // local development
 ].filter(Boolean) as string[];
 
