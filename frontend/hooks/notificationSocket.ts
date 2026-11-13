@@ -7,7 +7,8 @@ export function useNotificationSocket() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const socket = io(process.env.NEXT_PUBLIC_API_URL!, {
+    const socketURL = new URL(process.env.NEXT_PUBLIC_API_URL!).origin;
+    const socket = io(socketURL, {
       withCredentials: true,
     });
     socket.on("notification:new", () => {
