@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import {
   Table,
   TableBody,
@@ -8,12 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -39,7 +34,7 @@ const columns = [
   "Actions",
 ] as const;
 
-export function TrashTable({
+export const TrashTable = memo(function TrashTable({
   data,
   pagination,
   onPageChange,
@@ -208,4 +203,4 @@ export function TrashTable({
       </div>
     </div>
   );
-}
+});

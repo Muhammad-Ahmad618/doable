@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { CirclePlus, Search } from "lucide-react";
 import { TaskSheet } from "./taskSheet";
@@ -9,26 +9,32 @@ import { useCreateTask } from "@/hooks/user/tasks";
 import { Input } from "@/components/ui/input";
 import { searchProps } from "@/types/trash";
 
-export function TaskHeader({ searchQuery, searchChange }: searchProps) {
+export const TaskHeader = memo(function TaskHeader({
+  searchQuery,
+  searchChange,
+}: searchProps) {
   const [open, setOpen] = useState(false);
 
   const { mutateAsync: createTask, isPending } = useCreateTask();
 
-  const handleSubmit = async (values: Tasks) => {
-    try {
-      await createTask({
-        title: values.title,
-        description: values.description,
-        priority: values.priority,
-        status: values.status,
-        due_date: values.due_date,
-      });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setOpen(false);
-    }
-  };
+  const handleSubmit = useCallback(
+    async (values: Tasks) => {
+      try {
+        await createTask({
+          title: values.title,
+          description: values.description,
+          priority: values.priority,
+          status: values.status,
+          due_date: values.due_date,
+        });
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setOpen(false);
+      }
+    },
+    [createTask],
+  );
 
   return (
     <>
@@ -67,4 +73,4 @@ export function TaskHeader({ searchQuery, searchChange }: searchProps) {
       </div>
     </>
   );
-}
+});

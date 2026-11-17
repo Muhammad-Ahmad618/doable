@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
+import { useMemo, useState, useCallback } from "react";
 import { InboxHeader } from "./header";
 import { InboxFilters } from "./filters";
 import { NotificationCard } from "./notification-card";
-import { DeleteInboxDialog } from "./delete-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
 import {
   InboxNotification,
@@ -21,6 +21,11 @@ import {
   useMarkAsRead,
 } from "@/hooks/notifications";
 import { NotificationItem } from "@/types/notifications";
+
+const DeleteInboxDialog = dynamic(
+  () => import("./delete-dialog").then((m) => m.DeleteInboxDialog),
+  { ssr: false },
+);
 
 function formatRelativeTime(date: Date | string): string {
   const now = Date.now();
@@ -128,13 +133,13 @@ export function InboxFeature() {
     filteredNotifications.length > 0 &&
     filteredNotifications.every((n) => selectedIds.includes(n.id));
 
-  const handleSelectToggle = (id: string) => {
+  const handleSelectToggle = useCallback((id: string) => {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
-  };
+  }, []);
 
-  const handleSelectAllToggle = () => {
+  const handleSelectAllToggle = useCallback(() => {
     if (allFilteredSelected) {
       const currentFilteredIds = new Set(
         filteredNotifications.map((n) => n.id),
@@ -148,17 +153,17 @@ export function InboxFeature() {
       );
       setSelectedIds(combined);
     }
-  };
+  }, [allFilteredSelected, filteredNotifications, selectedIds]);
 
   // Mark all as read
-  const handleMarkAllAsRead = () => {
+  const handleMarkAllAsRead = useCallback(() => {
     markAllReadMutate(undefined, {
       onSuccess: () => toast.success("All notifications marked as read"),
     });
-  };
+  }, [markAllReadMutate]);
 
   // Bulk mark as read — mark each selected unread notification
-  const handleBulkMarkAsRead = () => {
+  const handleBulkMarkAsRead = useCallback(() => {
     if (selectedIds.length === 0) return;
     const unreadSelected = notifications.filter(
       (n) => selectedIds.includes(n.id) && n.unread,
@@ -166,40 +171,46 @@ export function InboxFeature() {
     unreadSelected.forEach((n) => markAsReadMutate(Number(n.id)));
     toast.success(`${selectedIds.length} notifications marked as read`);
     setSelectedIds([]);
-  };
+  }, [selectedIds, notifications, markAsReadMutate]);
 
   // Toggle single read/unread status (only mark-as-read is supported by API)
-  const handleToggleRead = (id: string) => {
-    const notification = notifications.find((n) => n.id === id);
-    if (!notification) return;
-    if (notification.unread) {
-      markAsReadMutate(Number(id), {
-        onSuccess: () => toast.success("Marked as read"),
-      });
-    } else {
-      toast.info("Already read");
-    }
-  };
+  const handleToggleRead = useCallback(
+    (id: string) => {
+      const notification = notifications.find((n) => n.id === id);
+      if (!notification) return;
+      if (notification.unread) {
+        markAsReadMutate(Number(id), {
+          onSuccess: () => toast.success("Marked as read"),
+        });
+      } else {
+        toast.info("Already read");
+      }
+    },
+    [notifications, markAsReadMutate],
+  );
 
   // Delete handlers
-  const handleRequestSingleDelete = (notification: InboxNotification) => {
-    setDeleteTarget({ single: notification });
-    setOpenDeleteDialog(true);
-  };
+  const handleRequestSingleDelete = useCallback(
+    (notification: InboxNotification) => {
+      setDeleteTarget({ single: notification });
+      setOpenDeleteDialog(true);
+    },
+    [],
+  );
 
-  const handleRequestBulkDelete = () => {
+  const handleRequestBulkDelete = useCallback(() => {
     if (selectedIds.length === 0) return;
     setDeleteTarget({ bulk: selectedIds });
     setOpenDeleteDialog(true);
-  };
+  }, [selectedIds]);
 
-  const handleRequestClearAll = () => {
+  const handleRequestClearAll = useCallback(() => {
     if (notifications.length === 0) return;
     setDeleteTarget({ isAll: true });
     setOpenDeleteDialog(true);
-  };
+  }, [notifications.length]);
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = useCallback(() => {
     if (deleteTarget.isAll) {
       clearAllNotificationsMutate(undefined, {
         onSuccess: () => {
@@ -226,7 +237,11 @@ export function InboxFeature() {
 
     setOpenDeleteDialog(false);
     setDeleteTarget({});
-  };
+  }, [
+    deleteTarget,
+    clearAllNotificationsMutate,
+    deleteNotificationMutate,
+  ]);
 
   // Empty state title and message helper
   const getEmptyStateDetails = () => {

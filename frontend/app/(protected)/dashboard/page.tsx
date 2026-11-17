@@ -1,4 +1,9 @@
-import { Dashboard } from "@/components/features/dashboard";
+import dynamic from "next/dynamic";
+import { TableSkeleton } from "@/components/custom/table-skeleton";
+const Dashboard = dynamic(
+  () => import("@/components/features/dashboard").then((m) => m.Dashboard),
+  { loading: () => <TableSkeleton /> }
+);
 
 export const metadata = {
   title: "Dashboard | Doable",

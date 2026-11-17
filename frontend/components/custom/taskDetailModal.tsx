@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -31,7 +31,7 @@ import {
 } from "@/hooks/user/task-comments";
 import { formatDate } from "@/lib/dateFormater";
 
-export function TaskDetailModal({
+export const TaskDetailModal = memo(function TaskDetailModal({
   open,
   onOpenChange,
   task,
@@ -56,69 +56,83 @@ export function TaskDetailModal({
     enabled: open && Boolean(localTask?.task_id),
   });
 
-  if (!localTask) return null;
+  const handleAddComment = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!newComment.trim() || !localTask?.task_id) return;
 
-  const handleAddComment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newComment.trim() || !localTask?.task_id) return;
-
-    try {
-      await createTaskComment({
-        task_id: localTask?.task_id,
-        content: newComment.trim(),
-      });
-      setNewComment("");
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleStatusUpdate = async (status: Status) => {
-    if (localTask) {
-      // Optimistically update local state so the dropdown reflects the change immediately
-      setLocalTask((prev) => (prev ? { ...prev, status } : prev));
       try {
-        await updateTaskStatus({
+        await createTaskComment({
+          task_id: localTask?.task_id,
+          content: newComment.trim(),
+        });
+        setNewComment("");
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    [newComment, localTask?.task_id, createTaskComment],
+  );
+
+  const handleStatusUpdate = useCallback(
+    async (status: Status) => {
+      if (localTask) {
+        // Optimistically update local state so the dropdown reflects the change immediately
+        setLocalTask((prev) => (prev ? { ...prev, status } : prev));
+        try {
+          await updateTaskStatus({
+            task_id: localTask.task_id,
+            status,
+          });
+        } catch {
+          // Revert optimistic update on failure
+          setLocalTask((prev) =>
+            prev ? { ...prev, status: localTask.status } : prev,
+          );
+        }
+      }
+    },
+    [localTask, updateTaskStatus],
+  );
+
+  const handleDueDate = useCallback(
+    (due_date: string) => {
+      if (!localTask) return;
+      setLocalTask((prev) => (prev ? { ...prev, due_date } : prev));
+      try {
+        updateTaskDueDate({
           task_id: localTask.task_id,
-          status,
+          due_date: due_date,
         });
       } catch {
-        // Revert optimistic update on failure
         setLocalTask((prev) =>
-          prev ? { ...prev, status: localTask.status } : prev,
+          prev ? { ...prev, due_date: localTask.due_date } : prev,
         );
       }
-    }
-  };
+    },
+    [localTask, updateTaskDueDate],
+  );
 
-  const handleDueDate = (due_date: string) => {
-    setLocalTask((prev) => (prev ? { ...prev, due_date } : prev));
-    try {
-      updateTaskDueDate({
-        task_id: localTask.task_id,
-        due_date: due_date,
-      });
-    } catch {
-      setLocalTask((prev) =>
-        prev ? { ...prev, due_date: localTask.due_date } : prev,
-      );
-    }
-  };
+  const handleUpdatePriority = useCallback(
+    (priority: Priority) => {
+      if (!localTask) return;
+      setLocalTask((prev) => (prev ? { ...prev, priority } : prev));
 
-  const handleUpdatePriority = (priority: Priority) => {
-    setLocalTask((prev) => (prev ? { ...prev, priority } : prev));
+      try {
+        updateTaskPriority({
+          task_id: localTask.task_id,
+          priority: priority,
+        });
+      } catch {
+        setLocalTask((prev) =>
+          prev ? { ...prev, priority: localTask.priority } : prev,
+        );
+      }
+    },
+    [localTask, updateTaskPriority],
+  );
 
-    try {
-      updateTaskPriority({
-        task_id: localTask.task_id,
-        priority: priority,
-      });
-    } catch {
-      setLocalTask((prev) =>
-        prev ? { ...prev, priority: localTask.priority } : prev,
-      );
-    }
-  };
+  if (!localTask) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -399,4 +413,4 @@ export function TaskDetailModal({
       </DialogContent>
     </Dialog>
   );
-}
+});

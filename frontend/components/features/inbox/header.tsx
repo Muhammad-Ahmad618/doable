@@ -1,12 +1,13 @@
 "use client";
 
+import { memo } from "react";
 import { CheckCheck, Inbox, Search, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { InboxHeaderProps } from "@/types/inbox";
 
-export function InboxHeader({
+export const InboxHeader = memo(function InboxHeader({
   totalCount,
   unreadCount,
   searchQuery,
@@ -96,5 +97,5 @@ export function InboxHeader({
       </div>
     </div>
   );
-}
+});
 

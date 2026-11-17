@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,7 +26,7 @@ import { useRouter } from "next/navigation";
 import { useSignOut } from "@/hooks/auth/auth";
 import { Loader2, MessageSquare, ChevronRight } from "lucide-react";
 
-export function NavUser({
+export const NavUser = memo(function NavUser({
   user,
 }: {
   user: {
@@ -39,12 +39,12 @@ export function NavUser({
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const { mutate: signOut, isPending } = useSignOut();
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     setTimeout(() => {
       setShowLogoutModal(false);
     }, 500);
     signOut();
-  };
+  }, [signOut]);
 
   return (
     <>
@@ -204,4 +204,4 @@ export function NavUser({
       </Dialog>
     </>
   );
-}
+});

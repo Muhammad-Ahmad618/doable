@@ -1,10 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
+import { useMemo, useState, useCallback } from "react";
 import { TaskHeader } from "@/components/features/tasks/header";
 import { TaskTable } from "@/components/features/tasks/taskTable";
-import { TaskSheet } from "./taskSheet";
-import { TaskDetailModal } from "../../custom/taskDetailModal";
 import { Tasks } from "@/types/task";
 import {
   useGetAllTasks,
@@ -14,7 +13,24 @@ import {
 import { TableSkeleton } from "@/components/custom/table-skeleton";
 import { SectionError } from "@/components/shared/error-block";
 import { EmptyState } from "@/components/shared/empty-state";
-import { DeleteTaskDialog } from "@/components/shared/delete-task-dialog";
+
+const TaskSheet = dynamic(
+  () => import("./taskSheet").then((m) => m.TaskSheet),
+  { ssr: false },
+);
+
+const TaskDetailModal = dynamic(
+  () => import("../../custom/taskDetailModal").then((m) => m.TaskDetailModal),
+  { ssr: false },
+);
+
+const DeleteTaskDialog = dynamic(
+  () =>
+    import("@/components/shared/delete-task-dialog").then(
+      (m) => m.DeleteTaskDialog,
+    ),
+  { ssr: false },
+);
 
 export function PersonalTasks() {
   const [page, setPage] = useState(1);
@@ -46,24 +62,27 @@ export function PersonalTasks() {
   const { mutateAsync: deleteTask, isPending: isPendingDelete } =
     useRemoveTask();
 
-  const onSubmitHandler = async (values: Tasks) => {
-    try {
-      await updateTask(values);
-      setOpenSheet(false);
-      setSelectedTask(undefined);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const onSubmitHandler = useCallback(
+    async (values: Tasks) => {
+      try {
+        await updateTask(values);
+        setOpenSheet(false);
+        setSelectedTask(undefined);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    [updateTask],
+  );
 
-  const handleOpenChange = (isOpen: boolean) => {
+  const handleOpenChange = useCallback((isOpen: boolean) => {
     setOpenSheet(isOpen);
     if (!isOpen) {
       setSelectedTask(undefined);
     }
-  };
+  }, []);
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     if (taskToDelete) {
       try {
         await deleteTask(taskToDelete?.task_id);
@@ -73,7 +92,26 @@ export function PersonalTasks() {
         console.log(error);
       }
     }
-  };
+  }, [taskToDelete, deleteTask]);
+
+  const handleView = useCallback((task: Tasks) => {
+    setSelectedDetailTask(task);
+    setOpenDetail(true);
+  }, []);
+
+  const handleEdit = useCallback((task: Tasks) => {
+    setSelectedTask(task);
+    setOpenSheet(true);
+  }, []);
+
+  const handleDeleteRequest = useCallback((task: Tasks) => {
+    setTaskToDelete(task);
+    setOpenDialog(true);
+  }, []);
+
+  const handleSearchChange = useCallback((val: string) => {
+    setSearchQuery(val);
+  }, []);
 
   const filteredTasks = useMemo(() => {
     if (!searchQuery.trim()) return tasks?.data;
@@ -90,9 +128,7 @@ export function PersonalTasks() {
     <div>
       <TaskHeader
         searchQuery={searchQuery}
-        searchChange={(val) => {
-          setSearchQuery(val);
-        }}
+        searchChange={handleSearchChange}
       />
 
       {isLoading ? (
@@ -116,18 +152,9 @@ export function PersonalTasks() {
           pagination={tasks?.pagination}
           onPageChange={setPage}
           onLimitChange={setLimit}
-          onView={(task) => {
-            setSelectedDetailTask(task);
-            setOpenDetail(true);
-          }}
-          onEdit={(task) => {
-            setSelectedTask(task);
-            setOpenSheet(true);
-          }}
-          onDelete={(task) => {
-            setTaskToDelete(task);
-            setOpenDialog(true);
-          }}
+          onView={handleView}
+          onEdit={handleEdit}
+          onDelete={handleDeleteRequest}
         />
       )}
 

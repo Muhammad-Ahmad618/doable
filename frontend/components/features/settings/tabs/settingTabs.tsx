@@ -1,13 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Profile } from "../tabs/profile";
-import { AccountSecurity } from "../tabs/accountSecurity";
-import { Notifications } from "../tabs/notifications";
-import { Appearance } from "../tabs/appearance";
-import { DangerZone } from "../tabs/dangerZone";
-import { Feedback } from "../tabs/help-feedback";
 import {
   User,
   ShieldCheck,
@@ -18,6 +13,31 @@ import {
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+
+const Profile = dynamic(
+  () => import("../tabs/profile").then((m) => m.Profile),
+  { loading: () => <div className="h-48 rounded-xl bg-muted/30 animate-pulse" /> },
+);
+const AccountSecurity = dynamic(
+  () => import("../tabs/accountSecurity").then((m) => m.AccountSecurity),
+  { loading: () => <div className="h-48 rounded-xl bg-muted/30 animate-pulse" /> },
+);
+const Notifications = dynamic(
+  () => import("../tabs/notifications").then((m) => m.Notifications),
+  { loading: () => <div className="h-48 rounded-xl bg-muted/30 animate-pulse" /> },
+);
+const Appearance = dynamic(
+  () => import("../tabs/appearance").then((m) => m.Appearance),
+  { loading: () => <div className="h-48 rounded-xl bg-muted/30 animate-pulse" /> },
+);
+const Feedback = dynamic(
+  () => import("../tabs/help-feedback").then((m) => m.Feedback),
+  { loading: () => <div className="h-48 rounded-xl bg-muted/30 animate-pulse" /> },
+);
+const DangerZone = dynamic(
+  () => import("../tabs/dangerZone").then((m) => m.DangerZone),
+  { loading: () => <div className="h-48 rounded-xl bg-muted/30 animate-pulse" /> },
+);
 
 const tabs = [
   { value: "profile", label: "Profile", icon: User },
@@ -47,23 +67,28 @@ export function SettingTabs() {
     ? (tabParam as TabValue)
     : "profile";
 
-  const handleScreenSize = () => {
-    if (screen.width < 1024) {
+  const handleScreenSize = useCallback(() => {
+    if (window.innerWidth < 1024) {
       setOrientation("horizontal");
     } else {
       setOrientation("vertical");
     }
-  };
+  }, []);
 
   useEffect(() => {
+    handleScreenSize();
     window.addEventListener("resize", handleScreenSize);
-  }, [orientation]);
+    return () => window.removeEventListener("resize", handleScreenSize);
+  }, [handleScreenSize]);
 
-  const handleTabChange = (value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("tab", value);
-    router.replace(`/settings?${params.toString()}`, { scroll: false });
-  };
+  const handleTabChange = useCallback(
+    (value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tab", value);
+      router.replace(`/settings?${params.toString()}`, { scroll: false });
+    },
+    [searchParams, router],
+  );
 
   return (
     <Tabs

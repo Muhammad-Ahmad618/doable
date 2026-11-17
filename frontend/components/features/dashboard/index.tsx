@@ -1,6 +1,7 @@
 "use client";
 
-import { ChartAreaInteractive } from "@/components/features/dashboard/taskCompletionChaart";
+import dynamic from "next/dynamic";
+import { useState, useCallback } from "react";
 import { StatCard } from "@/components/features/dashboard/statsCards";
 import { RecentTaskTable } from "@/components/features/dashboard/recentTaskTable";
 import {
@@ -11,8 +12,6 @@ import {
   ListTodo,
 } from "lucide-react";
 import { AtRiskTaskList } from "./atRiskTaskList";
-import { TaskDetailModal } from "@/components/custom/taskDetailModal";
-import { useState } from "react";
 import {
   useGetDashboardStats,
   useGetAtRiskTasks,
@@ -26,12 +25,38 @@ import { AtRiskSkeleton } from "@/components/custom/atrisk-list-skeleton";
 import { TableSkeleton } from "@/components/custom/table-skeleton";
 import { SectionError } from "@/components/shared/error-block";
 
+const ChartAreaInteractive = dynamic(
+  () =>
+    import("@/components/features/dashboard/taskCompletionChaart").then(
+      (m) => m.ChartAreaInteractive,
+    ),
+  { loading: () => <ChartSkeleton /> },
+);
+
+const TaskDetailModal = dynamic(
+  () =>
+    import("@/components/custom/taskDetailModal").then(
+      (m) => m.TaskDetailModal,
+    ),
+  { ssr: false },
+);
+
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 export function Dashboard() {
   const [selectedTask, setSelectedTask] = useState<recentTasks | null>(null);
   const [openDetail, setOpenDetail] = useState<boolean>(false);
   const [timeRange, setTimeRange] = useState<"6w" | "6m">("6w");
   const trendMode = timeRange === "6m" ? "monthly" : "weekly";
+
+  const handleTimeRangeChange = useCallback(
+    (v: string) => setTimeRange(v as "6w" | "6m"),
+    [],
+  );
+
+  const handleView = useCallback((task: recentTasks) => {
+    setSelectedTask(task);
+    setOpenDetail(true);
+  }, []);
 
   const {
     data: dashboardStats,
@@ -133,7 +158,7 @@ export function Dashboard() {
                 <ChartAreaInteractive
                   chartData={taskTrends || []}
                   timeRange={timeRange}
-                  onTimeRangeChange={(v) => setTimeRange(v as "6w" | "6m")}
+                  onTimeRangeChange={handleTimeRangeChange}
                 />
               )}
             </div>
@@ -179,10 +204,7 @@ export function Dashboard() {
             ) : (
               <RecentTaskTable
                 tasks={recentTasks || []}
-                onView={(task) => {
-                  setSelectedTask(task);
-                  setOpenDetail(true);
-                }}
+                onView={handleView}
               />
             )}
           </div>

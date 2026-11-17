@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { CheckCheck, Trash2 } from "lucide-react";
@@ -14,7 +15,7 @@ const TABS: { id: NotificationCategory; label: string }[] = [
   { id: "system", label: "System" },
 ];
 
-export function InboxFilters({
+export const InboxFilters = memo(function InboxFilters({
   activeTab,
   onTabChange,
   counts,
@@ -105,5 +106,5 @@ export function InboxFilters({
       )}
     </div>
   );
-}
+});
 

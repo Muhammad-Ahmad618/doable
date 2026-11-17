@@ -1,7 +1,11 @@
+import dynamic from "next/dynamic";
 import { AppSidebar } from "@/components/custom/app-sidebar";
 import { SiteHeader } from "@/components/shared/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { ChatWidget } from "@/components/shared/chat-widget";
+
+const ChatWidget = dynamic(
+  () => import("@/components/shared/chat-widget").then((m) => m.ChatWidget),
+);
 
 export default function ProtectedLayout({
   children,

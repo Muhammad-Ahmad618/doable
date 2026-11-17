@@ -1,13 +1,18 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import dynamic from "next/dynamic";
+import { useState, useMemo, useCallback } from "react";
 import { TrashHeader } from "./header";
 import { TrashTable } from "./trashTable";
-import { RestoreDialog } from "./restoreDialog";
 import { TrashTask } from "@/types/trash";
 import { useGetTrashTasks, useRecoverTask } from "@/hooks/user/trash";
 import { TableSkeleton } from "@/components/custom/table-skeleton";
 import { SectionError } from "@/components/shared/error-block";
+
+const RestoreDialog = dynamic(
+  () => import("./restoreDialog").then((m) => m.RestoreDialog),
+  { ssr: false },
+);
 
 export function TrashFeature() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -42,12 +47,12 @@ export function TrashFeature() {
     return filteredTasks.slice(start, start + limit);
   }, [filteredTasks, page, limit]);
 
-  const handleRequestRestore = (task: TrashTask) => {
+  const handleRequestRestore = useCallback((task: TrashTask) => {
     setRestoreTarget(task);
     setOpenRestoreDialog(true);
-  };
+  }, []);
 
-  const handleConfirmRestore = async () => {
+  const handleConfirmRestore = useCallback(async () => {
     if (!restoreTarget) return;
 
     try {
@@ -57,17 +62,24 @@ export function TrashFeature() {
     } catch (error) {
       console.error("Failed to restore task:", error);
     }
-  };
+  }, [restoreTarget, recoverTask]);
+
+  const handleSearchChange = useCallback((val: string) => {
+    setSearchQuery(val);
+    setPage(1);
+  }, []);
+
+  const handleLimitChange = useCallback((newLimit: number) => {
+    setLimit(newLimit);
+    setPage(1);
+  }, []);
 
   return (
     <div className="space-y-6">
       <TrashHeader
         totalCount={filteredTasks.length}
         searchQuery={searchQuery}
-        onSearchChange={(val) => {
-          setSearchQuery(val);
-          setPage(1);
-        }}
+        onSearchChange={handleSearchChange}
       />
 
       {isLoading ? (
@@ -84,10 +96,7 @@ export function TrashFeature() {
             totalPages: Math.max(1, Math.ceil(filteredTasks.length / limit)),
           }}
           onPageChange={setPage}
-          onLimitChange={(newLimit) => {
-            setLimit(newLimit);
-            setPage(1);
-          }}
+          onLimitChange={handleLimitChange}
           onRestore={handleRequestRestore}
         />
       )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import {
   Table,
   TableBody,
@@ -53,7 +54,12 @@ interface TaskRowProps {
   onDelete?: (id: Tasks) => void;
 }
 
-function TaskRow({ task, onView, onEdit, onDelete }: TaskRowProps) {
+const TaskRow = memo(function TaskRow({
+  task,
+  onView,
+  onEdit,
+  onDelete,
+}: TaskRowProps) {
   return (
     <TableRow
       className="hover:bg-muted/20 text-[13px] overflow-hidden
@@ -123,9 +129,9 @@ function TaskRow({ task, onView, onEdit, onDelete }: TaskRowProps) {
       </TableCell>
     </TableRow>
   );
-}
+});
 
-export function TaskTable({
+export const TaskTable = memo(function TaskTable({
   data,
   pagination,
   onPageChange,
@@ -241,4 +247,4 @@ export function TaskTable({
       </div>
     </div>
   );
-}
+});

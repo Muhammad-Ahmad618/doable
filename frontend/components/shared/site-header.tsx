@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -44,10 +44,31 @@ export function SiteHeader() {
   const { data: user } = useGetCurrentUser();
   const { resolvedTheme, setTheme } = useTheme();
 
-  const items = notificationsData?.data?.Notification ?? [];
+  const items = useMemo(
+    () => notificationsData?.data?.Notification ?? [],
+    [notificationsData],
+  );
   const unreadCount = notificationsData?.data?.unread ?? 0;
 
-  const markAllRead = () => markAllReadMutate();
+  const markAllRead = useCallback(() => markAllReadMutate(), [markAllReadMutate]);
+  const handleToggleTheme = useCallback(
+    () => setTheme(resolvedTheme === "dark" ? "light" : "dark"),
+    [resolvedTheme, setTheme],
+  );
+  const handleItemClick = useCallback(
+    (id: number, isUnread: boolean) => {
+      if (isUnread) markAsReadMutate(id);
+    },
+    [markAsReadMutate],
+  );
+  const navUser = useMemo(
+    () => ({
+      name: user?.username || "",
+      email: user?.email || "",
+      avatar: user?.avatar_url || "",
+    }),
+    [user?.username, user?.email, user?.avatar_url],
+  );
 
   return (
     <header className="flex h-16 shrink-0 items-center border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 dark:bg-header dark:supports-backdrop-filter:bg-header sticky top-0 z-10 px-4 lg:px-6 transition-all">
@@ -63,9 +84,7 @@ export function SiteHeader() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() =>
-              setTheme(resolvedTheme === "dark" ? "light" : "dark")
-            }
+            onClick={handleToggleTheme}
             className="cursor-pointer group relative h-10 w-10 rounded-full border border-blue-400/20 bg-linear-to-br from-blue-400/15 via-blue-500/10 to-indigo-500/20 text-blue-600 shadow-[0_2px_12px_rgba(59,130,246,0.12)] backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:border-blue-400/40 hover:from-blue-400/25 hover:via-blue-500/20 hover:to-indigo-500/30 hover:text-blue-700 hover:shadow-[0_4px_20px_rgba(59,130,246,0.25)] active:scale-95 dark:from-blue-400/20 dark:via-blue-500/15 dark:to-indigo-500/25 dark:text-blue-300 dark:hover:text-blue-200"
             aria-label="Toggle theme"
           >
@@ -169,9 +188,7 @@ export function SiteHeader() {
                       return (
                         <div
                           key={n.id}
-                          onClick={() => {
-                            if (isUnread) markAsReadMutate(n.id);
-                          }}
+                          onClick={() => handleItemClick(n.id, !n.read_at)}
                           className={cn(
                             "group flex cursor-pointer gap-3 rounded-xl px-3 py-3 transition-all duration-200 hover:bg-blue-50/70 dark:hover:bg-white/6",
                             isUnread && "bg-blue-50/40 dark:bg-blue-500/6",
@@ -233,13 +250,7 @@ export function SiteHeader() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <NavUser
-            user={{
-              name: user?.username || "",
-              email: user?.email || "",
-              avatar: user?.avatar_url || "U",
-            }}
-          />
+          <NavUser user={navUser} />
         </div>
       </div>
     </header>

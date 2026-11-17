@@ -1,4 +1,9 @@
-import { Workspace } from "@/components/features/workspace";
+import dynamic from "next/dynamic";
+import { WorkspaceCardSkeleton } from "@/components/custom/workspace-card-skeleton";
+const Workspace = dynamic(
+  () => import("@/components/features/workspace").then((m) => m.Workspace),
+  { loading: () => <WorkspaceCardSkeleton /> }
+);
 
 export const metadata = {
   title: "Workspegs | Doable",

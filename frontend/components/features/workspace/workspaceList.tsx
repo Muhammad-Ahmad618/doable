@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -10,14 +11,13 @@ import {
   AlertDialogTitle,
   AlertDialogDescription,
 } from "@/components/ui/alert-dialog";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import type { Workspace } from "@/types/workspace";
 import { WorkspaceCard } from "./workspaceCard";
 import { Button } from "@/components/ui/button";
 import { useGetMyWorkspaces, useLeaveWorkspace } from "@/hooks/user/workspace";
 import { WorkspaceCardSkeleton } from "@/components/custom/workspace-card-skeleton";
 import { SectionError } from "@/components/shared/error-block";
-import { InviteMemberModal } from "./inviteMemberModal";
 import {
   AlertCircle,
   BriefcaseBusiness,
@@ -26,6 +26,11 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { getApiErrorMessage } from "@/lib/api-error";
+
+const InviteMemberModal = dynamic(
+  () => import("./inviteMemberModal").then((m) => m.InviteMemberModal),
+  { ssr: false },
+);
 
 export function WorkspaceList() {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -49,29 +54,29 @@ export function WorkspaceList() {
   // ownership (or delete the workspace) before they can leave.
   const isOwner = workspaceToLeave?.role === "owner";
 
-  const handleLeaveClick = (workspace: Workspace) => {
+  const handleLeaveClick = useCallback((workspace: Workspace) => {
     setErrorMessage(null);
     setWorkspaceToLeave(workspace);
     setOpenDialog(true);
-  };
+  }, []);
 
-  const handleInviteClick = (workspace: Workspace) => {
+  const handleInviteClick = useCallback((workspace: Workspace) => {
     setWorkspaceToInvite(workspace);
-  };
+  }, []);
 
-  const handleInviteOpenChange = (open: boolean) => {
+  const handleInviteOpenChange = useCallback((open: boolean) => {
     if (!open) setWorkspaceToInvite(null);
-  };
+  }, []);
 
-  const handleOpenChange = (open: boolean) => {
+  const handleOpenChange = useCallback((open: boolean) => {
     setOpenDialog(open);
     if (!open) {
       setErrorMessage(null);
       setWorkspaceToLeave(null);
     }
-  };
+  }, []);
 
-  const handleLeave = async () => {
+  const handleLeave = useCallback(async () => {
     if (!workspaceToLeave) return;
 
     setErrorMessage(null);
@@ -87,7 +92,7 @@ export function WorkspaceList() {
         getApiErrorMessage(error, "Failed to leave the workspace."),
       );
     }
-  };
+  }, [workspaceToLeave, leaveWorkspace]);
 
   return (
     <>

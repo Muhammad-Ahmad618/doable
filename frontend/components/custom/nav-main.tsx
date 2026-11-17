@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -11,7 +12,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export function NavMain({
+export const NavMain = memo(function NavMain({
   items,
 }: {
   items: {
@@ -45,4 +46,4 @@ export function NavMain({
       </SidebarGroupContent>
     </SidebarGroup>
   );
-}
+});

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -47,7 +47,7 @@ const priorityStyle: Record<string, { pill: string; dot: string }> = {
   },
 };
 
-function PriorityPill({ priority }: { priority: string }) {
+const PriorityPill = memo(function PriorityPill({ priority }: { priority: string }) {
   const s = priorityStyle[priority] ?? priorityStyle.low;
   return (
     <span
@@ -57,7 +57,7 @@ function PriorityPill({ priority }: { priority: string }) {
       {priority}
     </span>
   );
-}
+});
 
 function getInitials(name: string) {
   return name
@@ -68,7 +68,7 @@ function getInitials(name: string) {
     .join("");
 }
 
-function Assignee({ name }: { name?: string | null }) {
+const Assignee = memo(function Assignee({ name }: { name?: string | null }) {
   if (!name) {
     return <span className="text-xs text-muted-foreground/70">Unassigned</span>;
   }
@@ -80,11 +80,11 @@ function Assignee({ name }: { name?: string | null }) {
       <span className="truncate text-sm">{name}</span>
     </div>
   );
-}
+});
 
 /* ---------- main component ---------- */
 
-export function RecentTaskTable({
+export const RecentTaskTable = memo(function RecentTaskTable({
   tasks,
   onView,
 }: {
@@ -99,7 +99,7 @@ export function RecentTaskTable({
     undefined,
   );
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     if (taskToDelete) {
       try {
         await deleteTask(taskToDelete.task_id);
@@ -109,7 +109,7 @@ export function RecentTaskTable({
         console.log(error);
       }
     }
-  };
+  }, [taskToDelete, deleteTask]);
 
   return (
     <div
@@ -283,4 +283,4 @@ export function RecentTaskTable({
       />
     </div>
   );
-}
+});

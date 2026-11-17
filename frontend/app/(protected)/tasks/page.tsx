@@ -1,4 +1,9 @@
-import { PersonalTasks } from "@/components/features/tasks";
+import dynamic from "next/dynamic";
+import { TableSkeleton } from "@/components/custom/table-skeleton";
+const PersonalTasks = dynamic(
+  () => import("@/components/features/tasks").then((m) => m.PersonalTasks),
+  { loading: () => <TableSkeleton /> }
+);
 
 export const metadata = {
   title: "Tasks | Doable",

@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { LucideIcon, Inbox } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -10,7 +11,7 @@ interface EmptyStateProps {
   className?: string;
 }
 
-export function EmptyState({
+export const EmptyState = memo(function EmptyState({
   title = "Nothing here yet",
   description,
   icon: Icon = Inbox,
@@ -57,4 +58,4 @@ export function EmptyState({
       )}
     </div>
   );
-}
+});

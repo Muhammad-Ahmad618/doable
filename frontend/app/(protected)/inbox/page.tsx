@@ -1,4 +1,9 @@
-import { InboxFeature } from "@/components/features/inbox";
+import dynamic from "next/dynamic";
+import { TableSkeleton } from "@/components/custom/table-skeleton";
+const InboxFeature = dynamic(
+  () => import("@/components/features/inbox").then((m) => m.InboxFeature),
+  { loading: () => <TableSkeleton /> }
+);
 
 export const metadata = {
   title: "Inbox | Doable",

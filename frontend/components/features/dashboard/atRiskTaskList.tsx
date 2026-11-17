@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useMemo } from "react";
 import { AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import { AtriskTaskItem } from "@/types/dashboard";
 import { formatDate } from "@/lib/dateFormater";
@@ -51,7 +52,7 @@ const priorityDot: Record<string, string> = {
 
 /* ---------- circular risk gauge ---------- */
 
-function RiskRing({ score, className }: { score: number; className: string }) {
+const RiskRing = memo(function RiskRing({ score, className }: { score: number; className: string }) {
   const size = 44;
   const stroke = 4;
   const r = (size - stroke) / 2;
@@ -94,16 +95,19 @@ function RiskRing({ score, className }: { score: number; className: string }) {
       </span>
     </div>
   );
-}
+});
 
 /* ---------- main component ---------- */
 
-export function AtRiskTaskList({
+export const AtRiskTaskList = memo(function AtRiskTaskList({
   atRiskTasks,
 }: {
   atRiskTasks: AtriskTaskItem[];
 }) {
-  const tasks = [...atRiskTasks].sort((a, b) => b.risk_score - a.risk_score);
+  const tasks = useMemo(
+    () => [...atRiskTasks].sort((a, b) => b.risk_score - a.risk_score),
+    [atRiskTasks]
+  );
 
   return (
     <div
@@ -220,4 +224,4 @@ export function AtRiskTaskList({
       )}
     </div>
   );
-}
+});

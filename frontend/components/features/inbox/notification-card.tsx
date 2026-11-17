@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import {
   AlertTriangle,
   AtSign,
@@ -61,7 +62,7 @@ function getTypeIcon(type: NotificationType) {
   }
 }
 
-export function NotificationCard({
+export const NotificationCard = memo(function NotificationCard({
   notification,
   selected,
   onSelectToggle,
@@ -193,5 +194,5 @@ export function NotificationCard({
       </div>
     </div>
   );
-}
+});
 

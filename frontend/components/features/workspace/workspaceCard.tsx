@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Card } from "@/components/ui/card";
 import type { Workspace } from "@/types/workspace";
 import { Button } from "@/components/ui/button";
@@ -74,7 +75,7 @@ const getMemberInfo = (member: MemberPreview) => {
   };
 };
 
-export function WorkspaceCard({
+export const WorkspaceCard = memo(function WorkspaceCard({
   workspace,
   onLeave,
   onInvite,
@@ -238,4 +239,4 @@ export function WorkspaceCard({
       </Card>
     </div>
   );
-}
+});

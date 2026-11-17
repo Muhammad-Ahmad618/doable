@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Card } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
 
@@ -11,7 +12,7 @@ interface SectionCardProps {
   accentColor?: string;
 }
 
-export function StatCard({
+export const StatCard = memo(function StatCard({
   title,
   value,
   description,
@@ -66,4 +67,4 @@ export function StatCard({
       />
     </Card>
   );
-}
+});
