@@ -160,7 +160,7 @@ export const createDueSoonNotifications = async () => {
         WHERE n.task_id = t.task_id
           AND n.type = 'task_due_soon'
           AND n.created_at >= t.due_date::date - 1
-        RETRUNING n.id, n.user_id, n.type, n.message, n.created_at,n,read_at  
+        RETURNING n.id, n.user_id, n.type, n.message, n.created_at,n,read_at  
       )
   `);
 
