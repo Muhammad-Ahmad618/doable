@@ -144,7 +144,7 @@ const TODAY = `(NOW() AT TIME ZONE 'Asia/Karachi')::date`;
 
 export const createDueSoonNotifications = async () => {
   const { rows } = await pool.query(`
-   INSERT INTO notifications (user_id, task_id, type, message)
+    INSERT INTO notifications (user_id, task_id, type, message)
     SELECT COALESCE(t.assigned_to, t.user_id), t.task_id, 'task_due_soon',
            CASE
              WHEN t.due_date::date = ${TODAY}
@@ -159,9 +159,9 @@ export const createDueSoonNotifications = async () => {
         SELECT 1 FROM notifications n
         WHERE n.task_id = t.task_id
           AND n.type = 'task_due_soon'
-          AND n.created_at >= t.due_date::date - 1
+          AND n.created_at::date >= (${TODAY} - 1)
       )
-      RETURNING n.id, n.user_id, n.type, n.message, n.created_at,n,read_at  
+    RETURNING id, user_id, type, message, created_at, read_at
   `);
 
   rows.forEach((n) => emitToUser(n.user_id, "notification:new", n));
@@ -182,14 +182,18 @@ export const createOverNotifications = async () => {
           AND n.type = 'task_overdue'
           AND n.created_at >= t.due_date::date
       )
-    RETURNING n.id,n.user_id,n.message,n.type,n.created_at,n.read_at
+    RETURNING id, user_id, message, type, created_at, read_at
   `);
   rows.forEach((n) => emitToUser(n.user_id, "notification:new", n));
 };
 
 export const createDueNotifications = async () => {
-  await Promise.allSettled([
+  const results = await Promise.allSettled([
     createDueSoonNotifications(),
     createOverNotifications(),
   ]);
+  results.forEach((r, i) => {
+    if (r.status === "rejected")
+      console.error(`Due notification job [${i}] failed:`, r.reason);
+  });
 };
